@@ -1,0 +1,63 @@
+# Node.js 相关
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 本地开发日志
+*.log
+
+# 编译输出目录
+dist/
+build/
+
+# 临时文件
+*.tmp
+*.swp
+*.swo
+*.swn
+*.bak
+*.old
+
+# IDE 相关配置文件
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# 系统生成文件
+.DS_Store
+Thumbs.db
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# Vue CLI 生成的缓存文件
+.cache/
+public/
+
+# Optional npm cache directory
+.npm/
+
+# 测试输出
+coverage/
+junit.xml
+test/unit/coverage/
+test/e2e/coverage/
+test/coverage/
+
+# 包管理器锁定文件
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 错误报告
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 生产环境生成的文件
+output/
