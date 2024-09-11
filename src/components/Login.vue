@@ -128,12 +128,17 @@ export default {
         message.success('登录成功');
 
         // 跳转到另一个页面（例如 dashboard）
-        this.$router.push('/dashboard');
-
+        this.$router.push('/home');
       } catch (error) {
         // 登录失败的处理
-        console.error('登录失败:', error);
-        message.error('登录失败，请检查用户名或密码');
+        let msg;
+        if (error.code === "ERR_NETWORK") {
+          msg = error.message;
+        } else {
+          msg = '登录失败，请检查用户名或密码'
+        }
+        console.error('登录失败:', error.message);
+        message.error(msg);
       } finally {
         this.isSubmitting = false;
       }

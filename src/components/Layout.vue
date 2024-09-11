@@ -56,11 +56,9 @@ export default {
     const breadcrumbs = ref([]); // 面包屑
 
     // 动态菜单项
-    const menuRoutes = router.options.routes.filter((r) => r.meta && r.meta.title);
-
+    const menuRoutes = router.options.routes.find((r) => r.path === "/").children;
     // 处理菜单点击事件
     const handleMenuClick = ({key}) => {
-      console.log(key)
       activeMenu.value = key;
       router.push(key); // 跳转到对应的路由
     };
@@ -69,12 +67,12 @@ export default {
     watch(
         () => route.path,
         (newPath) => {
-          console.log(newPath);
           activeMenu.value = newPath; // 更新菜单项
           breadcrumbs.value = route.meta.breadcrumb || []; // 更新面包屑
         },
         {immediate: true}
     );
+
 
     return {
       activeMenu,

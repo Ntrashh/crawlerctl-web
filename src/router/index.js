@@ -3,39 +3,48 @@ import Login from "@/components/Login.vue";
 import Project from "@/views/Project.vue";
 import Envs from "@/views/Envs.vue";
 import Home from "@/views/Home.vue";
+import Layout from "@/components/Layout.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        {path: '/', redirect: '/home'},
+        {
+            path: '/',
+            redirect: '/home',
+            component: Layout,
+            children: [
+                {
+                    path: '/home',
+                    component: Home,
+                    meta: {
+                        requiresAuth: true,
+                        title: '仪表盘',
+                        breadcrumb: ['Home'],
+                    }
+                },
+                {
+                    path: '/project',
+                    component: Project,
+                    meta: {
+                        requiresAuth: true,
+                        title: '项目管理',
+                        breadcrumb: ['首页', '项目管理'],
+                    }
+                },
+                {
+                    path: '/envs',
+                    component: Envs,
+                    meta: {
+                        requiresAuth: true,
+                        title: '环境管理',
+                        breadcrumb: ['首页', '环境管理'],
+                    }
+                },
+            ]
+        },
+
         {path: '/login', component: Login},
-        {
-            path: '/home',
-            component: Home,
-            meta: {
-                requiresAuth: true,
-                title: '仪表盘',
-                breadcrumb: ['Home'],
-            }
-        },
-        {
-            path: '/project',
-            component: Project,
-            meta: {
-                requiresAuth: true,
-                title: '项目管理',
-                breadcrumb: ['首页', '项目管理'],
-            }
-        },
-        {
-            path: '/envs',
-            component: Envs,
-            meta: {
-                requiresAuth: true,
-                title: '环境管理',
-                breadcrumb: ['首页', '环境管理'],
-            }
-        },
+
 
     ],
 });
