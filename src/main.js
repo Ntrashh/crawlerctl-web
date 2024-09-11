@@ -1,23 +1,28 @@
-import "./assets/main.css";
-
-import { createApp } from "vue";
+import {createApp} from "vue";
 import App from "./App.vue";
 import router from "./router";
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-
+import axios from "axios";
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/reset.css';
 const app = createApp(App);
 
 
-app.use(router);
-app.use(ElementPlus,{
-    theme:{
-        dark:false
-    }
-})
+// 设置 Axios 全局默认配置
+axios.defaults.baseURL = 'http://localhost:8080';  // 设置后端 API 的基础 URL
 
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-    app.component(key, component)
-}
-app.mount("#app");
+
+// 添加请求拦截器，自动附加 JWT Token
+axios.interceptors.request.use(config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+
+
+app.use(router);
+app.use(Antd).mount('#app');

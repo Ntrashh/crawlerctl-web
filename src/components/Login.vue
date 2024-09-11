@@ -1,40 +1,41 @@
 <template>
-  <el-container class="login-container">
-    <el-form ref="loginForm" :model="loginForm" @submit.prevent="handleLogin" class="full-width-form">
+  <a-layout class="login-container">
+    <a-card class="full-width-form">
       <div class="project-name">
         <h1>Crawlerctl</h1>
       </div>
       <!-- 用户名输入 -->
-      <el-form-item class="full-width-item">
-        <el-input
-            v-model="loginForm.username"
-            placeholder="请输入用户名"
+      <a-form
+          :model="loginForm"
+          @submit.prevent="handleLogin"
+          layout="vertical"
+          ref="loginFormRef"
+      >
+        <a-form-item label="用户名">
+          <a-input
+              v-model:value="loginForm.username"
+              placeholder="请输入用户名"
+              prefix-icon="User"
+              allow-clear
+          />
+        </a-form-item>
 
-        >
-          <template #prefix>
-            <User/>
-          </template>
-        </el-input>
+        <!-- 密码输入 -->
+        <a-form-item label="密码">
+          <a-input-password
+              v-model:value="loginForm.password"
+              placeholder="请输入密码"
+              allow-clear
+          />
+        </a-form-item>
 
-      </el-form-item>
-      <!-- 密码输入 -->
-      <el-form-item class="full-width-item">
-        <el-input
-            type="password"
-            v-model="loginForm.password"
-            placeholder="请输入密码"
-            show-password>
-          <template #prefix>
-            <Lock/>
-          </template>
-        </el-input>
-      </el-form-item>
-      <!-- 登录按钮 -->
-      <el-form-item class="button-center">
-        <el-button type="primary" @click="handleLogin" :loading="isSubmitting">登录</el-button>
-      </el-form-item>
-    </el-form>
-  </el-container>
+        <!-- 登录按钮 -->
+        <a-form-item class="button-center">
+          <a-button type="primary" @click="handleLogin" :loading="isSubmitting" block>登录</a-button>
+        </a-form-item>
+      </a-form>
+    </a-card>
+  </a-layout>
 </template>
 
 <style scoped>
@@ -89,27 +90,53 @@
 
 
 <script>
-import {Lock, User, UserFilled} from "@element-plus/icons-vue";
+import axios from 'axios';
+import {LockOutlined, UserOutlined} from "@ant-design/icons-vue";
+import {message} from 'ant-design-vue';
 
 export default {
-  components: {Lock, User, UserFilled},
+  components: {
+    UserOutlined,
+    LockOutlined,
+  },
   data() {
     return {
       loginForm: {
         username: '',
         password: ''
       },
-      isSubmitting: false
+      isSubmitting: false,
+      loginFormRef: null
     };
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       this.isSubmitting = true;
-      // 模拟提交操作
-      setTimeout(() => {
-        console.log('登录信息', this.loginForm);
+
+      try {
+        // 发送登录请求
+        const response = await axios.post('/login', {
+          username: this.loginForm.username,
+          password: this.loginForm.password
+        });
+        // 假设登录成功，后端返回 JWT Token
+        const token = response.data.data.token;
+        // 将 JWT Token 存储到 localStorage
+        localStorage.setItem('token', token);
+
+        // 显示成功消息
+        message.success('登录成功');
+
+        // 跳转到另一个页面（例如 dashboard）
+        this.$router.push('/dashboard');
+
+      } catch (error) {
+        // 登录失败的处理
+        console.error('登录失败:', error);
+        message.error('登录失败，请检查用户名或密码');
+      } finally {
         this.isSubmitting = false;
-      }, 2000);
+      }
     }
   }
 };
