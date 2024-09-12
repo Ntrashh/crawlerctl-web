@@ -54,7 +54,6 @@ instance.interceptors.response.use(response => {
             case 500:
                 console.error('服务器错误');
                 message.error('服务器错误');
-
                 break;
             default:
                 message.error(error.response.data.message);
@@ -71,8 +70,8 @@ export function axiosGet(url, params = {}) {
 }
 
 // 封装的 POST 请求
-export function axiosPost(url, data = {}) {
-    return instance.post(url, data);
+export function axiosPost(url, data = {}, params = {}) {
+    return instance.post(url, data,params);
 }
 
 export default {
