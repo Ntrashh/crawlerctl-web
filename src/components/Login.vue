@@ -93,6 +93,7 @@
 import axios from 'axios';
 import {LockOutlined, UserOutlined} from "@ant-design/icons-vue";
 import {message} from 'ant-design-vue';
+import {axiosPost} from "@/util/fetch.js";
 
 export default {
   components: {
@@ -115,18 +116,16 @@ export default {
 
       try {
         // 发送登录请求
-        const response = await axios.post('/login', {
+        const response = await axiosPost('/login', {
           username: this.loginForm.username,
           password: this.loginForm.password
         });
         // 假设登录成功，后端返回 JWT Token
-        const token = response.data.data.token;
+        const token = response.data.token;
         // 将 JWT Token 存储到 localStorage
         localStorage.setItem('token', token);
-
         // 显示成功消息
         message.success('登录成功');
-
         // 跳转到另一个页面（例如 dashboard）
         this.$router.push('/home');
       } catch (error) {

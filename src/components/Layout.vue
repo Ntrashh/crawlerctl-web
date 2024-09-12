@@ -2,7 +2,7 @@
   <a-layout style="min-height: 100vh">
     <a-layout-sider>
       <div class="logo">
-        <h1>Crawlerctl</h1>
+        <h1>CrawlerCtl</h1>
       </div>
       <a-menu theme="dark" mode="inline"
               :selectedKeys="[activeMenu]"
