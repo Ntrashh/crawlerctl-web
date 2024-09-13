@@ -368,8 +368,8 @@ export default {
       isModalVisible.value = false;  // 隐藏弹出框
     };
 
-    const handleManage = () => {
-      router.push("/envs/virtualenv"); // 跳转到对应的路由
+    const handleManage = async (record) => {
+      router.push({path:"/envs/virtualenv", query: { envName: record.envName }} ); // 跳转到对应的路由
     }
 
     // 在组件挂载时初次获取数据

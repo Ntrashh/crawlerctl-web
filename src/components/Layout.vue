@@ -56,7 +56,7 @@ export default {
     // 处理菜单点击事件
     const handleMenuClick = ({key}) => {
       activeMenu.value = key;
-      router.push(key); // 跳转到对应的路由
+      router.push({path:key}); // 跳转到对应的路由
     };
 
     const getIconComponent = (iconName) =>{

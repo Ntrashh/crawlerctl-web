@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory} from "vue-router";
 import Login from "@/components/Login.vue";
 import Project from "@/views/Project.vue";
-import Envs from "@/views/Envs.vue";
+import Envs from "@/views/env/Envs.vue";
 import Home from "@/views/Home.vue";
 import Layout from "@/components/Layout.vue";
 import Virtualenv from "@/views/env/Virtualenv.vue";
