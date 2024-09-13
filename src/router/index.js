@@ -4,6 +4,8 @@ import Project from "@/views/Project.vue";
 import Envs from "@/views/Envs.vue";
 import Home from "@/views/Home.vue";
 import Layout from "@/components/Layout.vue";
+import Virtualenv from "@/views/env/Virtualenv.vue";
+import EnvManager from "@/views/env/EnvManager.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,8 +20,9 @@ const router = createRouter({
                     component: Home,
                     meta: {
                         requiresAuth: true,
-                        title: '仪表盘',
-                        breadcrumb: ['Home'],
+                        title: '主页',
+                        icon: 'HomeOutlined',
+                        breadcrumb: ['主页'],
                     }
                 },
                 {
@@ -28,18 +31,44 @@ const router = createRouter({
                     meta: {
                         requiresAuth: true,
                         title: '项目管理',
-                        breadcrumb: ['首页', '项目管理'],
+                        icon: 'FundProjectionScreenOutlined',
+                        breadcrumb: ['主页', '项目管理'],
                     }
                 },
                 {
                     path: '/envs',
+                    redirect: '/envs/manager',
                     component: Envs,
                     meta: {
                         requiresAuth: true,
                         title: '环境管理',
-                        breadcrumb: ['首页', '环境管理'],
-                    }
+                        icon: 'HddOutlined',
+                        breadcrumb: ['主页', '环境管理'],
+                    },
+                    children: [
+                        {
+                            path: 'manager', // 注意，这里不要以斜杠开头
+                            component: EnvManager,
+                            meta: {
+                                requiresAuth: true,
+                                title: '虚拟环境',
+                                breadcrumb: ['主页', '环境管理'],
+                            },
+                        },
+                        {
+                            path: 'virtualenv', // 注意，这里不要以斜杠开头
+                            component: Virtualenv,
+                            meta: {
+                                requiresAuth: true,
+                                title: '虚拟环境',
+                                breadcrumb: ['主页', '环境管理', '虚拟环境'],
+                            },
+                        },
+
+                    ],
+
                 },
+
             ]
         },
 

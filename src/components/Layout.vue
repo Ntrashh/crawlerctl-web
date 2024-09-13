@@ -13,6 +13,7 @@
             :key="route.path"
             :route="route.path"
         >
+          <component :is="getIconComponent(route.meta.icon)" />
           <span>{{ route.meta.title }}</span>
         </a-menu-item>
       </a-menu>
@@ -26,12 +27,6 @@
             {{ breadcrumb }}
           </a-breadcrumb-item>
         </a-breadcrumb>
-        <!--        <br/>-->
-        <!--        {{ $route.path }}-->
-        <!--        <a-breadcrumb style="margin: 16px 0">-->
-        <!--          <a-breadcrumb-item>User</a-breadcrumb-item>-->
-        <!--          <a-breadcrumb-item>Bill</a-breadcrumb-item>-->
-        <!--        </a-breadcrumb>-->
         <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
           <router-view></router-view>
         </div>
@@ -46,6 +41,7 @@
 <script>
 import {useRouter, useRoute} from 'vue-router';
 import {ref, watch} from 'vue';
+import * as Icons from '@ant-design/icons-vue';
 
 export default {
   setup() {
@@ -61,6 +57,10 @@ export default {
     const handleMenuClick = ({key}) => {
       activeMenu.value = key;
       router.push(key); // 跳转到对应的路由
+    };
+
+    const getIconComponent = (iconName) =>{
+        return Icons[iconName];
     };
 
     // 监听路由变化，更新面包屑
@@ -79,6 +79,7 @@ export default {
       breadcrumbs,
       menuRoutes,
       handleMenuClick,
+      getIconComponent
     };
   }
 };
