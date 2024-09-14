@@ -30,7 +30,6 @@
           <a-input v-model:value="name" placeholder="请输入虚拟环境名称"/>
         </a-form-item>
       </a-form>
-
     </a-modal>
   </div>
 </template>
@@ -38,7 +37,7 @@
 
 <script>
 import {computed, h, onMounted, ref, watch} from 'vue';
-import {CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, SettingOutlined} from "@ant-design/icons-vue";
+import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
 import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {Button, message, Modal} from "ant-design-vue";
 import router from "@/router/index.js";
@@ -146,7 +145,7 @@ export default {
           "version": versionStr,
           "env_name": nameStr
         }, {
-          timeout: 60000  // 设置超时时间为 5000 毫秒（5秒）
+          timeout: 60000
         })
         confirmLoading.value = false;
         isModalVisible.value = false;  // 隐藏弹出框
@@ -165,9 +164,7 @@ export default {
     // 删除操作的处理函数
     const handleDelete = async (record) => {
       try {
-        console.log(record)
         loadingStates.value = {...loadingStates.value, [record.version]: true};
-
         const response = await axiosPost("/envs/delete_virtualenv", {
           "env_name": record.envName
         })

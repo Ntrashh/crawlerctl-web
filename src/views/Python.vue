@@ -34,10 +34,10 @@
 </template>
 
 <script>
-import { computed, h, onMounted, ref, watch } from 'vue';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, SettingOutlined } from "@ant-design/icons-vue";
-import { axiosGet, axiosPost } from "@/util/fetch.js";
-import { Button, message, Modal } from "ant-design-vue";
+import {computed, h, onMounted, ref, watch} from 'vue';
+import {CheckOutlined, CloseOutlined, DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
+import {axiosGet, axiosPost} from "@/util/fetch.js";
+import {Button, message, Modal} from "ant-design-vue";
 
 export default {
   setup() {
@@ -66,16 +66,16 @@ export default {
         {
           title: '全局版本',
           key: 'isGlobal',
-          customRender: ({ record }) => {
+          customRender: ({record}) => {
             return record.isGlobal
-                ? h(CheckOutlined, { style: 'color: green;' })
-                : h(CloseOutlined, { style: 'color: red;' });
+                ? h(CheckOutlined, {style: 'color: green;'})
+                : h(CloseOutlined, {style: 'color: red;'});
           },
         },
         {
           title: '操作',
           key: 'actions',
-          customRender: ({ record }) => {
+          customRender: ({record}) => {
             return h('div', [
               h(
                   Button,
@@ -141,7 +141,7 @@ export default {
     // 安装 Python 版本
     const pythonInstall = async () => {
       try {
-        const response = await axiosPost("/envs/install", { version: value.value });
+        const response = await axiosPost("/envs/install", {version: value.value});
         const taskId = response.data;
         message.success(`Python ${value.value}安装任务提交成功: ${taskId}`);
         isModalVisible.value = false;
@@ -173,7 +173,13 @@ export default {
       if (taskStatus.value === 'done') {
         Modal.success({
           title: `安装${statusData.result.version}版本成功!`,
-          content: statusData.result.message,
+          content: h('div', {}, [
+            h('p', {
+              style: {
+                whiteSpace: 'pre-line'  // 使用 pre-line 样式来保留换行符
+              }
+            }, statusData.result.message),
+          ]),
           async onOk() {
             await fetchPythonData();
           },
@@ -181,7 +187,13 @@ export default {
       } else if (taskStatus.value === 'failed') {
         Modal.error({
           title: `安装${statusData.result.version}版本失败!`,
-          content: statusData.result.message,
+          content: h('div', {}, [
+            h('p', {
+              style: {
+                whiteSpace: 'pre-line'  // 使用 pre-line 样式来保留换行符
+              }
+            }, statusData.result.message),
+          ]),
           async onOk() {
             await fetchPythonData();
           },
