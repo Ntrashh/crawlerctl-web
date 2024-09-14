@@ -57,15 +57,19 @@ export default {
           title: '版本',
           dataIndex: 'version',
           key: 'version',
+          width: 200,
         },
         {
           title: '路径',
           dataIndex: 'path',
           key: 'path',
+          width: 600,
+
         },
         {
           title: '全局版本',
           key: 'isGlobal',
+          width: 200,
           customRender: ({record}) => {
             return record.isGlobal
                 ? h(CheckOutlined, {style: 'color: green;'})
@@ -75,6 +79,8 @@ export default {
         {
           title: '操作',
           key: 'actions',
+          width: 300,
+
           customRender: ({record}) => {
             return h('div', [
               h(

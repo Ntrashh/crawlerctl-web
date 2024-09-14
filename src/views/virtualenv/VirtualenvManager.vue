@@ -23,7 +23,54 @@
 
   <a-tabs type="card" style="padding-top: 20px">
     <a-tab-pane key="virtualManage" tab="pip包管理">
-      <a-table :dataSource="dataSource" :columns="columns"/>
+      <!--      <a-table :dataSource="dataSource" :columns="columns"/>-->
+      <a-table :data-source="dataSource" :columns="columns">
+
+        <template
+            #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
+        >
+          <div style="padding: 8px">
+            <a-input
+                ref="searchInput"
+                :placeholder="`Search ${column.dataIndex}`"
+                :value="selectedKeys[0]"
+                style="width: 188px; margin-bottom: 8px; display: block"
+                @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+                @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
+            />
+            <a-button
+                type="primary"
+                size="small"
+                style="width: 90px; margin-right: 8px"
+                @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
+            >
+              Search
+            </a-button>
+            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
+              Reset
+            </a-button>
+          </div>
+        </template>
+
+        <template #bodyCell="{ text, column }">
+      <span v-if="state.searchText && state.searchedColumn === column.dataIndex">
+        <template
+            v-for="(fragment, i) in text
+            .toString()
+            .split(new RegExp(`(?<=${state.searchText})|(?=${state.searchText})`, 'i'))"
+        >
+          <mark
+              v-if="fragment.toLowerCase() === state.searchText.toLowerCase()"
+              :key="i"
+              class="highlight"
+          >
+            {{ fragment }}
+          </mark>
+          <template v-else>{{ fragment }}</template>
+        </template>
+      </span>
+        </template>
+      </a-table>
     </a-tab-pane>
     <!-- 正确使用 rightExtra 插槽 -->
     <template #rightExtra>
@@ -75,8 +122,7 @@ import {computed, h, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {Button, message} from "ant-design-vue";
 import {DeleteOutlined} from "@ant-design/icons-vue";
-import Virtualenv from "@/views/virtualenv/Virtualenv.vue";
-
+import { SearchOutlined } from '@ant-design/icons-vue';
 export default {
   setup() {
     const route = useRoute();
@@ -85,7 +131,6 @@ export default {
     const virtualEnvPath = ref("");
     const dataSource = ref([]);
     const loadingStates = ref({});
-
     // 弹窗
     const isPackageModalVisible = ref(false);
     const packageName = ref('');
@@ -93,21 +138,41 @@ export default {
     const selectedVersion = ref(undefined);
     const confirmLoading = ref(false);
 
+
+    const state = ref({
+      searchText: '',
+      searchedColumn: '',
+    });
+
+    const searchInput = ref();
     const columns = computed(() => {
       return [
         {
           title: '名称',
           dataIndex: 'name',
           key: 'name',
+          width: 600, // 设置固定宽度为 150px
+          customFilterDropdown: true,
+          onFilter: (value, record) => record.name.toString().toLowerCase().includes(value.toLowerCase()),
+          onFilterDropdownOpenChange: visible => {
+            if (visible) {
+              setTimeout(() => {
+                searchInput.value.focus();
+              }, 100);
+            }
+          },
         },
         {
           title: '版本',
           dataIndex: 'version',
           key: 'version',
+          width: 400, // 设置固定宽度为 150px
+
         },
         {
           title: '操作', // 新增的操作列
           key: 'actions',
+          width: 300, // 设置固定宽度为 150px
           customRender: ({record}) => {
             return h('div', [
               h(
@@ -127,16 +192,27 @@ export default {
       ];
     });
 
+
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+      confirm();
+      state.searchText = selectedKeys[0];
+      state.searchedColumn = dataIndex;
+    };
+
+    const handleReset = clearFilters => {
+      clearFilters({ confirm: true });
+      state.searchText = '';
+    };
+
     // 定义安装源选项
     const installationSources = [
       {label: '阿里云', value: 'http://mirrors.aliyun.com/pypi/simple/'},
-      {label: '清华源', value: 'https://pypi.tuna.tsinghua.edu.cn/simple'},
       {label: '中国科技大学', value: 'https://mirrors.ustc.edu.cn/pypi/simple/'},
+      {label: '清华源', value: 'https://pypi.tuna.tsinghua.edu.cn/simple/'},
       {label: '中国科学技术大学', value: 'http://pypi.mirrors.ustc.edu.cn/simple/'},
       {label: '官方源', value: 'https://pypi.org/simple'},
     ];
     const selectedInstallationSource = ref(installationSources[0].value);
-
     const getVenvInfo = async (envName) => {
       const response = await axiosGet("/envs/get_virtualenv", {"env_name": envName})
       virtualEnvName.value = response.data.envName;
@@ -216,6 +292,7 @@ export default {
         confirmLoading.value = false;
         isPackageModalVisible.value = false;
         message.success(`Package ${packageName.value} 安装成功!`);
+        await installedPackages()
       } catch (error) {
         message.success(`Package ${packageName.value} 安装失败!`);
         console.log(error);
@@ -255,6 +332,7 @@ export default {
 
 
 
+
     onMounted(async () => {
       await getVenvInfo(route.query.envName)
       await installedPackages(route.query.envName)
@@ -268,6 +346,11 @@ export default {
       handlePackageInstall,
       handlePackageCancel,
       fetchPackageVersions,
+      SearchOutlined,
+      handleSearch,
+      handleReset,
+      searchInput,
+      state,
       selectedInstallationSource,
       installationSources,
       isPackageModalVisible,

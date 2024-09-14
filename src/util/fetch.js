@@ -50,10 +50,11 @@ instance.interceptors.response.use(response => {
                 // 未授权处理逻辑
                 console.error('未授权，跳转登录页');
                 message.error('未授权，跳转登录页');
+                window.location.href = '/login'; // 或完整路径
                 break;
             case 500:
                 console.error('服务器错误');
-                message.error('服务器错误');
+                message.error('服务器错误').then(r => {});
                 break;
             default:
                 message.error(error.response.data.message);

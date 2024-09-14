@@ -61,20 +61,27 @@ export default {
           title: '环境名称',
           dataIndex: 'envName',
           key: 'envName',
+          width: 300,
+
         },
         {
           title: '版本',
           dataIndex: 'version',
           key: 'version',
+          width: 200,
+
         },
         {
           title: '路径',
           dataIndex: 'path',
           key: 'path',
+          width: 600,
+
         },
         {
           title: '操作', // 新增的操作列
           key: 'actions',
+          width: 200,
           customRender: ({record}) => {
             return h('div', [
               h(
