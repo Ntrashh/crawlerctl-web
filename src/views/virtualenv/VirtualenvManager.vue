@@ -153,7 +153,7 @@
 
 <script  lang="ts">
 
-import {axiosGet, axiosPost} from "@/util/fetch.js";
+import {axiosGet, axiosPost,pollTaskStatus} from "@/util/fetch.js";
 import {computed, h, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {Button, message} from "ant-design-vue";
@@ -451,22 +451,36 @@ export default {
 
 
       try {
-        await axiosPost('/envs/install_requirements', formData, {
+        const response = await axiosPost('/envs/install_requirements', formData, {
+
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        message.success('依赖安装成功');
-        await installedPackages()
         isRequirementsModalVisible.value = false;
+        message.success(`导入依赖任务提交成功`);
+        const taskId = response.data;
+        const onProgress = (status, data) => {
+          console.log(`当前任务状态: ${status}`);
 
+        };
+
+        // 开始轮询任务状态
+        const finalStatus = await pollTaskStatus(taskId, 4000, 10, onProgress);
+
+        if (finalStatus === 'done') {
+          message.success('依赖安装成功');
+          // 执行任务完成后的操作
+        } else if (finalStatus === 'failed') {
+          message.success('依赖安装失败');
+          // 处理任务失败的情况
+        }
       } catch (error) {
-        console.error('依赖安装失败：', error);
-        message.error(error.response?.data?.error || '依赖安装失败，请检查文件内容');
-      } finally {
-        confirmLoading.value = false;
-        fileList.value = [];
+        console.error('处理任务时发生错误:', error);
       }
+        await installedPackages()
+
+
     };
 
 
