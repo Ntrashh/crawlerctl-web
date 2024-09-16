@@ -73,8 +73,14 @@
       </a-table>
     </a-tab-pane>
     <!-- 正确使用 rightExtra 插槽 -->
+    <!--    <template #rightExtra>-->
+    <!--    </template>-->
+
     <template #rightExtra>
-      <a-button type="primary" @click="handleAdd">新增</a-button>
+      <a-space>
+        <a-button type="primary" @click="handleImport">pip导入requirements</a-button>
+        <a-button type="primary" @click="handleAdd">pip 安装</a-button>
+      </a-space>
     </template>
   </a-tabs>
 
@@ -113,16 +119,49 @@
   </a-modal>
 
 
+  <a-modal v-model:open="isRequirementsModalVisible"
+           title="导入 requirements.txt"
+           @ok="handleRequirementsOk"
+           centered
+  >
+    <a-form-item label="源">
+      <a-select
+          v-model:value="selectedInstallationSource"
+          :options="installationSources"
+      ></a-select>
+    </a-form-item>
+    <a-upload-dragger
+        v-model:fileList="fileList"
+        name="file"
+        accept=".txt"
+        :max-count="1"
+        :before-upload="beforeUpload"
+        @change="handleChange"
+        @drop="handleDrop"
+    >
+      <p class="ant-upload-drag-icon">
+      </p>
+      <p class="ant-upload-text">上传requirements文件</p>
+      <p class="ant-upload-hint">
+        只能上传requirements.txt,其他文件禁止上传！
+      </p>
+    </a-upload-dragger>
+  </a-modal>
+
+
 </template>
 
-<script>
+<script  lang="ts">
 
 import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {computed, h, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {Button, message} from "ant-design-vue";
 import {DeleteOutlined} from "@ant-design/icons-vue";
-import { SearchOutlined } from '@ant-design/icons-vue';
+import {SearchOutlined} from '@ant-design/icons-vue';
+import { InboxOutlined } from '@ant-design/icons-vue';
+import  type { UploadChangeParam } from 'ant-design-vue';
+
 export default {
   setup() {
     const route = useRoute();
@@ -137,7 +176,13 @@ export default {
     const packageVersions = ref([]);
     const selectedVersion = ref(undefined);
     const confirmLoading = ref(false);
+    const isRequirementsModalVisible = ref(false);
+    const fileList = ref([]);
 
+
+    function handleDrop(e: DragEvent) {
+      console.log(e);
+    }
 
     const state = ref({
       searchText: '',
@@ -200,7 +245,7 @@ export default {
     };
 
     const handleReset = clearFilters => {
-      clearFilters({ confirm: true });
+      clearFilters({confirm: true});
       state.searchText = '';
     };
 
@@ -259,6 +304,10 @@ export default {
       return 0;
     }
 
+
+    const handleImport = () => {
+      isRequirementsModalVisible.value = true;
+    }
 
     const handleAdd = () => {
       isPackageModalVisible.value = true;
@@ -330,7 +379,95 @@ export default {
       }
     }
 
+    // 文件上传前的校验，返回 false 阻止自动上传
+    const beforeUpload = (file) => {
+      const isTxt = file.type === 'text/plain' || file.name.endsWith('.txt');
+      const isCorrectName = file.name === 'requirements.txt';
+      if (!isTxt || !isCorrectName) {
+        message.error('只能上传 requirements.txt 文件');
+        return false;
+      }
 
+      // 创建 FileReader 对象
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const content = e.target.result;
+        // 对文件内容进行校验
+        const isValid = validateRequirementsContent(content);
+        if (!isValid) {
+          message.error('文件内容不是标准的 requirements.txt 格式');
+          // 从文件列表中移除该文件
+          fileList.value = [];
+        }
+      };
+
+      // 读取文件内容
+      reader.readAsText(file);
+
+      // 返回 false，阻止自动上传
+      return false;
+    };
+
+
+    const validateRequirementsContent = (content) => {
+      const lines = content.split(/\r?\n/);
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine === '' || trimmedLine.startsWith('#')) {
+          continue;
+        }
+        // 校验每一行的格式
+        const regex = /^[a-zA-Z0-9_\-\.]+(\s*(==|>=|<=|>|<|~=)\s*[a-zA-Z0-9_\-\.]+)?$/;
+
+        if (!regex.test(trimmedLine)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // 处理文件列表变化
+    const handleChange = ({ fileList: newFileList }) => {
+      fileList.value = newFileList.slice(-1); // 只保留最新上传的一个文件
+    };
+
+
+
+    const handleRequirementsOk = async () => {
+      if (fileList.value.length === 0) {
+        message.warning('请先选择 requirements.txt 文件');
+        return;
+      }
+
+      const file = fileList.value[0].originFileObj;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('virtualenv_path', virtualEnvPath.value);
+      formData.append('installation_source', selectedInstallationSource.value);
+
+      confirmLoading.value = true;
+
+
+      try {
+        await axiosPost('/envs/install_requirements', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        message.success('依赖安装成功');
+        await installedPackages()
+        isRequirementsModalVisible.value = false;
+
+      } catch (error) {
+        console.error('依赖安装失败：', error);
+        message.error(error.response?.data?.error || '依赖安装失败，请检查文件内容');
+      } finally {
+        confirmLoading.value = false;
+        fileList.value = [];
+      }
+    };
 
 
     onMounted(async () => {
@@ -349,6 +486,15 @@ export default {
       SearchOutlined,
       handleSearch,
       handleReset,
+      handleImport,
+      InboxOutlined,
+      handleChange,
+      handleDrop,
+      handleRequirementsOk,
+      beforeUpload,
+      handleChange,
+      fileList,
+      isRequirementsModalVisible,
       searchInput,
       state,
       selectedInstallationSource,
