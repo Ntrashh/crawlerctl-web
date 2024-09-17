@@ -40,6 +40,7 @@ import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {Button, message, Modal} from "ant-design-vue";
 
 export default {
+  name: "Python",
   setup() {
     const activeKey = ref('pyenv');
     const dataSource = ref([]);

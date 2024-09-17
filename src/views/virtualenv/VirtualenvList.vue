@@ -44,6 +44,7 @@ import router from "@/router/index.js";
 
 
 export default {
+  name: "VirtualenvList",
   setup() {
     // 定义 dataSource 和 columns
     const dataSource = ref([]);

@@ -160,9 +160,9 @@ import {Button, message} from "ant-design-vue";
 import {DeleteOutlined} from "@ant-design/icons-vue";
 import {SearchOutlined} from '@ant-design/icons-vue';
 import { InboxOutlined } from '@ant-design/icons-vue';
-import  type { UploadChangeParam } from 'ant-design-vue';
 
 export default {
+  name:"VirtualenvManager",
   setup() {
     const route = useRoute();
     const virtualEnvName = ref("");

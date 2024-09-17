@@ -1,12 +1,13 @@
 import {createRouter, createWebHistory} from "vue-router";
 import Login from "@/components/Login.vue";
-import Project from "@/views/Project.vue";
-import Envs from "@/views/virtualenv/Virtualenv.vue";
+import Virtualenv from "@/views/virtualenv/Virtualenv.vue";
 import Home from "@/views/Home.vue";
 import Layout from "@/components/Layout.vue";
-import Virtualenv from "@/views/virtualenv/Virtualenvs.vue";
-import EnvManager from "@/views/virtualenv/VirtualenvManager.vue";
+import VirtualenvList from "@/views/virtualenv/VirtualenvList.vue";
+import VirtualenvManager from "@/views/virtualenv/VirtualenvManager.vue";
 import Python from "@/views/Python.vue";
+import Project from "@/views/project/Project.vue";
+import ProjectList from "@/views/project/ProjectList.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +35,18 @@ const router = createRouter({
                         title: '项目管理',
                         icon: 'FundProjectionScreenOutlined',
                         breadcrumb: ['主页', '项目管理'],
-                    }
+                    },
+                    children:[
+                        {
+                            path: '', // 注意，这里不要以斜杠开头
+                            component: ProjectList,
+                            meta: {
+                                requiresAuth: true,
+                                title: '项目管理',
+                                breadcrumb:  ['主页', '项目管理'],
+                            },
+                        },
+                    ]
                 },
                 {
                     path: '/python',
@@ -49,7 +61,7 @@ const router = createRouter({
 
                 {
                     path: '/virtualenv',
-                    component: Envs,
+                    component: Virtualenv,
                     meta: {
                         requiresAuth: true,
                         title: '虚拟环境',
@@ -59,7 +71,7 @@ const router = createRouter({
                     children: [
                         {
                             path: '', // 注意，这里不要以斜杠开头
-                            component: Virtualenv,
+                            component: VirtualenvList,
                             meta: {
                                 requiresAuth: true,
                                 title: '虚拟环境',
@@ -68,7 +80,7 @@ const router = createRouter({
                         },
                         {
                             path: 'manager', // 注意，这里不要以斜杠开头
-                            component: EnvManager,
+                            component: VirtualenvManager,
                             meta: {
                                 requiresAuth: true,
                                 title: '虚拟环境',
