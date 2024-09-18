@@ -8,6 +8,7 @@ import VirtualenvManager from "@/views/virtualenv/VirtualenvManager.vue";
 import Python from "@/views/Python.vue";
 import Project from "@/views/project/Project.vue";
 import ProjectList from "@/views/project/ProjectList.vue";
+import ProjectEdit from "@/views/project/ProjectEdit.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,15 @@ const router = createRouter({
                                 requiresAuth: true,
                                 title: '项目管理',
                                 breadcrumb:  ['主页', '项目管理'],
+                            },
+                        },
+                        {
+                            path: 'edit', // 注意，这里不要以斜杠开头
+                            component: ProjectEdit,
+                            meta: {
+                                requiresAuth: true,
+                                title: '编辑项目',
+                                breadcrumb:  ['主页', '项目管理','编辑项目'],
                             },
                         },
                     ]

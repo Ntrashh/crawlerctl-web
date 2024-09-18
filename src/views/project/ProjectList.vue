@@ -64,6 +64,7 @@ import {Button, message} from "ant-design-vue";
 import JSZip from 'jszip';
 import {axiosDel, axiosGet, axiosPost} from "@/util/fetch.js";
 import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
+import router from "@/router/index.js";
 
 
 const fileList = ref([]);
@@ -167,8 +168,8 @@ export default {
       }
     };
 
-    function editProject(record) {
-      return undefined;
+    async function editProject(record) {
+      await router.push({path: "/project/edit", query: {ID: record.ID}}); // 跳转到对应的路由
     }
 
     async function deleteProject(record) {

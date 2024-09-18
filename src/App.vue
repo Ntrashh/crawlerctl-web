@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import Layout from "@/components/Layout.vue";
 import { useRoute } from 'vue-router';
 import Login from "@/components/Login.vue";
 
