@@ -223,6 +223,13 @@ export default {
     const handleDelete = async (record) => {
       try {
         loadingStates.value = {...loadingStates.value, [record.version]: true};
+        let version = await axiosGet("/projects/projects_by_version", {
+          "version": record.version,
+        })
+        if (version.data) {
+          message.error("当前Python版本正被项目依赖，无法删除!")
+          return
+        }
         await axiosPost("/envs/delete_python", {version: record.version});
         message.success(`删除 Python 版本 ${record.version} 成功`);
         await fetchPythonData();

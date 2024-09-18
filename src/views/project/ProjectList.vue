@@ -95,18 +95,18 @@ export default {
       },
       {
         title: '虚拟环境名称',
-        dataIndex: 'VirtualEnvName',
-        key: 'VirtualEnvName',
+        dataIndex: 'VirtualenvName',
+        key: 'VirtualenvName',
       },
       {
         title: '虚拟环境路径',
-        dataIndex: 'VirtualEnvPath',
-        key: 'VirtualEnvPath',
+        dataIndex: 'VirtualenvPath',
+        key: 'VirtualenvPath',
       },
       {
         title: '虚拟环境版本',
-        dataIndex: 'VirtualEnvVersion',
-        key: 'VirtualEnvVersion',
+        dataIndex: 'VirtualenvVersion',
+        key: 'VirtualenvVersion',
       },
       {
         title: '创建时间',
