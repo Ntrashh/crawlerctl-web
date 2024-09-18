@@ -119,7 +119,6 @@ export default {
         message.success('文件上传成功');
       } catch (error) {
         console.error('文件上传失败：', error);
-        message.error('文件上传失败');
       }finally {
         projectName.value = '';
         virtualenvValue.value = undefined;
