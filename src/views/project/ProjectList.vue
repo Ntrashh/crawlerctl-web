@@ -11,7 +11,8 @@
       </template>
 
     </a-tabs>
-    <a-modal v-model:open="createProjectIsModalVisible" title="创建项目" centered @ok="handleCreateProjectOk" :confirm-loading="confirmLoading"
+    <a-modal v-model:open="createProjectIsModalVisible" title="创建项目" centered @ok="handleCreateProjectOk"
+             :confirm-loading="confirmLoading"
              @cancel="handleCreateProjectCancel">
       <a-form layout="horizontal" :labelCol="{ span: 5 }"
               :wrapperCol="{ span: 16 }"
@@ -58,25 +59,128 @@
 </template>
 
 <script>
-import {ref, watch} from "vue";
-import {message} from "ant-design-vue";
+import {h, onMounted, ref, watch} from "vue";
+import {Button, message} from "ant-design-vue";
 import JSZip from 'jszip';
-import {axiosGet, axiosPost} from "@/util/fetch.js";
+import {axiosDel, axiosGet, axiosPost} from "@/util/fetch.js";
+import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
 
 
 const fileList = ref([]);
+
+
 export default {
   name: "ProjectList",
   setup() {
     const confirmLoading = ref(false);
     const dataSource = ref([])
-    const columns = []
     const createProjectIsModalVisible = ref(false);
     const virtualenvValue = ref(undefined);
     const virtualenvOptions = ref([]);
     const projectName = ref("");
-    let  virtualenvPath = ref("");
+    let virtualenvPath = ref("");
     let virtualenvVersion = ref("");
+
+
+    const columns = [
+      {
+        title: 'ID',
+        dataIndex: 'ID',
+        key: 'ID',
+      },
+      {
+        title: '项目名称',
+        dataIndex: 'ProjectName',
+        key: 'ProjectName',
+      },
+      {
+        title: '虚拟环境名称',
+        dataIndex: 'VirtualEnvName',
+        key: 'VirtualEnvName',
+      },
+      {
+        title: '虚拟环境路径',
+        dataIndex: 'VirtualEnvPath',
+        key: 'VirtualEnvPath',
+      },
+      {
+        title: '虚拟环境版本',
+        dataIndex: 'VirtualEnvVersion',
+        key: 'VirtualEnvVersion',
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'CreatedAt',
+        key: 'CreatedAt',
+        customRender: ({text}) => {
+          return text ? new Date(text).toLocaleString() : '';
+        },
+      },
+      {
+        title: '更新时间',
+        dataIndex: 'UpdatedAt',
+        key: 'UpdatedAt',
+        customRender: ({text}) => {
+          return text ? new Date(text).toLocaleString() : '';
+        },
+      },
+      {
+        title: '操作',
+        key: 'action',
+        customRender: ({record}) => {
+          return h('div', [
+            h(
+                Button,
+                {
+                  type: 'link',
+                  icon: h(SettingOutlined),
+                  onClick: () => editProject(record),
+                },
+                () => '编辑'
+            ),
+            h(
+                Button,
+                {
+                  type: 'link',
+                  danger: true,
+                  icon: h(DeleteOutlined),
+                  onClick: () => deleteProject(record),
+                },
+                () => '删除'
+            ),
+          ]);
+        },
+      },
+    ];
+
+
+    const fetchData = async () => {
+      try {
+        const response = await axiosGet('/projects/projects');
+        if (Array.isArray(response.data)) {
+          dataSource.value = response.data;
+        } else {
+          dataSource.value = [response.data];
+        }
+      } catch (error) {
+        console.error('获取项目列表失败：', error);
+      }
+    };
+
+    function editProject(record) {
+      return undefined;
+    }
+
+    async function deleteProject(record) {
+     try {
+       await axiosDel(`/projects/${record.ID}`);
+       message.success('项目已成功删除');
+       dataSource.value = dataSource.value.filter(item => item.ID !== record.ID);
+     }catch(error) {
+       console.log(error)
+     }
+    }
+
     const handleAddProject = () => {
       createProjectIsModalVisible.value = true;
     }
@@ -117,9 +221,10 @@ export default {
           timeout: 300000
         });
         message.success('文件上传成功');
+        await fetchData()
       } catch (error) {
         console.error('文件上传失败：', error);
-      }finally {
+      } finally {
         projectName.value = '';
         virtualenvValue.value = undefined;
         fileList.value = [];
@@ -163,7 +268,7 @@ export default {
     const focus = () => {
 
     }
-    const handleUploadChange  = ({ fileList: newFileList }) => {
+    const handleUploadChange = ({fileList: newFileList}) => {
       fileList.value = newFileList.slice(-1); // 只保留最新上传的一个文件
     };
 
@@ -179,11 +284,14 @@ export default {
           virtualenvOptions.value = response.data.map(item => ({
             label: item.envName, // 版本名
             value: item.envName, // 版本ID
-            version:item.version,
+            version: item.version,
             path: item.path,
           }));
         }
       }
+    });
+    onMounted(() => {
+      fetchData();
     });
     return {
       columns,

@@ -75,6 +75,14 @@ export function axiosPost(url, data = {}, params = {}) {
     return instance.post(url, data,params);
 }
 
+
+export function axiosDel(url, data = {}, params = {}) {
+    return instance.delete(url, {
+        data: data,
+        params: params
+    });
+}
+
 // 轮询任务状态
 export const pollTaskStatus = (taskId, interval = 4000, maxRetries = 100, onProgress) => {
     let retries = 0;
@@ -107,5 +115,5 @@ export const pollTaskStatus = (taskId, interval = 4000, maxRetries = 100, onProg
 };
 
 export default {
-    axiosGet, axiosPost,pollTaskStatus
+    axiosGet, axiosPost,axiosDel,pollTaskStatus
 };
