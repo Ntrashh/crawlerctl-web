@@ -19,20 +19,20 @@
       </a-menu>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header style="background: #fff; padding: 0"/>
+      <a-layout-header style="background: #fff; padding: 0 ;height: 20px"/>
       <a-layout-content style="margin: 0 16px">
 
-        <a-breadcrumb style="margin: 16px 0">
+        <a-breadcrumb style="margin: 16px;padding-left: 0px">
           <a-breadcrumb-item v-for="(breadcrumb, index) in breadcrumbs" :key="index">
             {{ breadcrumb }}
           </a-breadcrumb-item>
         </a-breadcrumb>
-        <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
+        <div class="rounded-div" :style="{ padding: '15px', background: '#fff', minHeight: '360px' }">
           <router-view></router-view>
         </div>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
-        Ant Design ©2018 Created by Ant UED
+        CrawlerCtl
       </a-layout-footer>
     </a-layout>
   </a-layout>
@@ -102,6 +102,15 @@ export default {
 
 .site-layout .site-layout-background {
   background: #fff;
+}
+.rounded-div {
+  border-radius: 15px; /* 设置圆角 */
+  overflow: hidden; /* 确保子元素不超出圆角边界 */
+  background-color: #fff; /* 背景色 */
+  border: 1px solid #d9d9d9; /* 可选：添加边框 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
+  height: 100%;
+  width: 100%;
 }
 
 [data-theme='dark'] .site-layout .site-layout-background {

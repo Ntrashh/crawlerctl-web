@@ -1,35 +1,41 @@
-
 <template>
-  <a-layout style="height: 100vh">
-    <!-- 侧边栏 -->
-    <a-layout-sider width="250px" theme="light">
-    <!-- 左侧：文件树 -->
-      <a-directory-tree
-          v-model:expandedKeys="expandedKeys"
-          v-model:selectedKeys="selectedKeys"
-          @select="onSelect"
-          :tree-data="treeData"
-          style="height: 100%; overflow-y: auto;"
-      ></a-directory-tree>
-    <!-- 右侧：代码编辑器 -->
-    </a-layout-sider>
-  <a-layout-content style="padding: 24px;">
-    <div id="editor" style="height: 100%; width: 100%"></div>
-<!--      <div id="editor" style="height: calc(100vh - 100px); border: 1px solid #ddd;"></div>-->
-  </a-layout-content>
-  </a-layout>
 
+  <div class="layout-wrapper">
+    <a-tabs type="card">
+      <a-tab-pane tab="编辑代码">
+
+        <a-layout class="custom-layout" style="height: 100vh;padding: 0px">
+          <!-- 侧边栏 -->
+          <a-layout-sider width="300px" theme="light">
+            <!-- 左侧：文件树 -->
+            <a-directory-tree
+                v-model:expandedKeys="expandedKeys"
+                v-model:selectedKeys="selectedKeys"
+                @select="onSelect"
+                :tree-data="treeData"
+                style="height: 100%; overflow-y: auto; padding: 30px"
+            ></a-directory-tree>
+            <!-- 右侧：代码编辑器 -->
+          </a-layout-sider>
+          <a-layout-content style="padding: 0px;">
+            <div id="editor" style="height: 100%; width: 100%"></div>
+            <!--      <div id="editor" style="height: calc(100vh - 100px); border: 1px solid #ddd;"></div>-->
+          </a-layout-content>
+        </a-layout>
+
+      </a-tab-pane>
+    </a-tabs>
+  </div>
 </template>
 
 <script>
 import {onMounted, toRaw} from "vue";
 import * as monaco from 'monaco-editor';
-import { ref } from 'vue';
-import { axiosGet} from "@/util/fetch.js";
-import axios from "axios";
+import {ref} from 'vue';
+import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {useRoute} from "vue-router";
-
-
+import {Base64} from "js-base64";
+import {message} from "ant-design-vue";
 
 
 export default {
@@ -47,13 +53,13 @@ export default {
     const codeContent = ref('');  // 代码内容
 
 
-
     const getProjectInfo = async (id) => {
       const response = await axiosGet(`/projects/${id}`);
       folderPath.value = response.data.SavePath
     }
     // 获取文件夹内容
     const getFolderContents = async () => {
+
       if (!folderPath.value) {
         return;
       }
@@ -81,15 +87,16 @@ export default {
         const response = await axiosGet('/projects/read_file', {
           filePath: selectedFilePath.value,
         });
-        codeContent.value = response.data;
+        codeContent.value = Base64.decode(response.data);
         // 检查编辑器实例是否已经初始化
         if (!editor.value) {
           editor.value = monaco.editor.create(document.getElementById('editor'), {
             value: codeContent.value,
+            scrollBeyondLastLine: false,
             language: getLanguageByExtension(selectedFilePath.value),
             theme: 'vs-dark',
           });
-          editor.value.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
+          editor.value.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function () {
             // 自定义保存逻辑
             saveFile();
           });
@@ -110,14 +117,17 @@ export default {
     const saveFile = async () => {
       const newContent = toRaw(editor.value).getValue();
       try {
-        await axios.post('/api/save_file', {
-          filePath: selectedFilePath.value,
-          content: newContent,
+        let response = await axiosPost('/projects/save_file', {
+          file_path: selectedFilePath.value,
+          content: Base64.encode(newContent),
         });
-        window.$message.success('文件保存成功');
+        if (response.data) {
+          message.success("保存成功")
+        } else {
+          message.error("保存失败")
+        }
       } catch (error) {
         console.error('保存文件失败:', error);
-        window.$message.error('保存文件失败');
       }
     };
 
@@ -162,5 +172,24 @@ export default {
 #editor {
   height: 100%;
   width: 100%;
+  //border-radius: 15px; /* 设置圆角半径 */
+  //overflow: hidden; /* 确保子元素不溢出圆角区域 */
+  //border: 1px solid #d9d9d9; /* 可选：添加边框以增强视觉效果 */
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
+  //background: #fff; /* 设置背景色，确保圆角可见 */
 }
+
+.custom-layout {
+  border-radius: 15px; /* 设置圆角半径 */
+  overflow: hidden; /* 确保子元素不溢出圆角区域 */
+  border: 1px solid #d9d9d9; /* 可选：添加边框以增强视觉效果 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
+  background: #fff; /* 设置背景色，确保圆角可见 */
+}
+
+
+.custom-content {
+  padding: 24px;
+}
+
 </style>
