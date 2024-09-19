@@ -1,17 +1,17 @@
 import {createRouter, createWebHistory} from "vue-router";
-import Login from "@/components/Login.vue";
-import Virtualenv from "@/views/virtualenv/Virtualenv.vue";
-import Home from "@/views/Home.vue";
 import Layout from "@/components/Layout.vue";
-import VirtualenvList from "@/views/virtualenv/VirtualenvList.vue";
-import VirtualenvManager from "@/views/virtualenv/VirtualenvManager.vue";
-import Python from "@/views/Python.vue";
-import Project from "@/views/project/Project.vue";
-import ProjectList from "@/views/project/ProjectList.vue";
-import ProjectEdit from "@/views/project/ProjectEdit.vue";
+import Home from "@/views/home/home.vue";
+import Project from "@/views/project/project.vue";
+import Python from "@/views/python/python.vue";
+import projectEdit from "@/views/project/projecteEdit.vue"
+import projectList from "@/views/project/projecteList.vue";
+import Virtualenv from "@/views/virtualenv/virtualenv.vue";
+import VirtualenvList from "@/views/virtualenv/virtualenvList.vue";
+import Login from "@/components/Login.vue";
+import VirtualenvManager from "@/views/virtualenv/virtualenvManager.vue";
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(process.env.BASE_URL),
     routes: [
         {
             path: '/',
@@ -40,7 +40,7 @@ const router = createRouter({
                     children:[
                         {
                             path: '', // 注意，这里不要以斜杠开头
-                            component: ProjectList,
+                            component: projectList,
                             meta: {
                                 requiresAuth: true,
                                 title: '项目管理',
@@ -49,7 +49,7 @@ const router = createRouter({
                         },
                         {
                             path: 'edit', // 注意，这里不要以斜杠开头
-                            component: ProjectEdit,
+                            component: projectEdit,
                             meta: {
                                 requiresAuth: true,
                                 title: '编辑项目',

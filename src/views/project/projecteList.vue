@@ -71,7 +71,7 @@ const fileList = ref([]);
 
 
 export default {
-  name: "ProjectList",
+  name: "projectList",
   setup() {
     const confirmLoading = ref(false);
     const dataSource = ref([])
@@ -169,17 +169,17 @@ export default {
     };
 
     async function editProject(record) {
-      await router.push({path: "/project/edit", query: {ID: record.ID}}); // 跳转到对应的路由
+      await router.push({path: "/project/edit", query: {id: record.ID}}); // 跳转到对应的路由
     }
 
     async function deleteProject(record) {
-     try {
-       await axiosDel(`/projects/${record.ID}`);
-       message.success('项目已成功删除');
-       dataSource.value = dataSource.value.filter(item => item.ID !== record.ID);
-     }catch(error) {
-       console.log(error)
-     }
+      try {
+        await axiosDel(`/projects/${record.ID}`);
+        message.success('项目已成功删除');
+        dataSource.value = dataSource.value.filter(item => item.ID !== record.ID);
+      }catch(error) {
+        console.log(error)
+      }
     }
 
     const handleAddProject = () => {
@@ -215,7 +215,7 @@ export default {
       formData.append('file', file);
       try {
         confirmLoading.value = true
-        const response = await axiosPost('/projects/add_project', formData, {
+        await axiosPost('/projects/add_project', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -250,7 +250,7 @@ export default {
       reader.onload = async (e) => {
         const content = e.target.result;
         try {
-          const zip = await JSZip.loadAsync(content);
+          await JSZip.loadAsync(content);
         } catch (err) {
           console.error('ZIP 文件解析失败：', err);
           message.error('无法解析 ZIP 文件');
@@ -281,6 +281,7 @@ export default {
         const response = await axiosGet('/envs/get_versions', {
           "type": "virtual"
         }); // 替换为实际接口
+        // eslint-disable-next-line no-unused-vars
         for (const item of response.data) {
           virtualenvOptions.value = response.data.map(item => ({
             label: item.envName, // 版本名

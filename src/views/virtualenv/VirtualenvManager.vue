@@ -18,7 +18,6 @@
       </a-col>
     </a-row>
 
-
   </div>
 
   <a-tabs type="card" style="padding-top: 20px">
@@ -151,7 +150,7 @@
 
 </template>
 
-<script  lang="ts">
+<script>
 
 import {axiosGet, axiosPost,pollTaskStatus} from "@/util/fetch.js";
 import {computed, h, onMounted, ref} from "vue";
@@ -170,7 +169,6 @@ export default {
     const virtualEnvPath = ref("");
     const dataSource = ref([]);
     const loadingStates = ref({});
-    // 弹窗
     const isPackageModalVisible = ref(false);
     const packageName = ref('');
     const packageVersions = ref([]);
@@ -180,7 +178,7 @@ export default {
     const fileList = ref([]);
 
 
-    function handleDrop(e: DragEvent) {
+    function handleDrop(e) {
       console.log(e);
     }
 
@@ -240,13 +238,13 @@ export default {
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
       confirm();
-      state.searchText = selectedKeys[0];
-      state.searchedColumn = dataIndex;
+      state.value.searchText = selectedKeys[0];
+      state.value.searchedColumn = dataIndex;
     };
 
     const handleReset = clearFilters => {
       clearFilters({confirm: true});
-      state.searchText = '';
+      state.value.searchText = '';
     };
 
     // 定义安装源选项
@@ -274,7 +272,7 @@ export default {
     const uninstallPackages = async (record) => {
       try {
         loadingStates.value = {...loadingStates.value, [record.name]: true};
-        const response = await axiosPost("/envs/uninstall_packages", {
+        await axiosPost("/envs/uninstall_packages", {
           "virtualenv_path": virtualEnvPath.value,
           "package_name": record.name
         })
@@ -283,7 +281,7 @@ export default {
         console.log(error);
       } finally {
         await installedPackages();
-        loadingStates.value = {...loadingStates.name, [record.version]: false};
+        loadingStates.value = {...loadingStates.value.name, [record.version]: false};
 
       }
     }
@@ -330,7 +328,7 @@ export default {
         const url = "/envs/install_packages";
         console.log(selectedInstallationSource.value)
         confirmLoading.value = true;
-        const response = await axiosPost(url, {
+         await axiosPost(url, {
           "package_name": packageName.value,
           "virtualenv_path": virtualEnvPath.value,
           "package_version": selectedVersion.value,
@@ -418,7 +416,7 @@ export default {
           continue;
         }
         // 校验每一行的格式
-        const regex = /^[a-zA-Z0-9_\-\.]+(\s*(==|>=|<=|>|<|~=)\s*[a-zA-Z0-9_\-\.]+)?$/;
+        const regex = /^[a-zA-Z0-9_\-.]+(\s*(==|>=|<=|>|<|~=)\s*[a-zA-Z0-9_\-.]+)?$/;
 
         if (!regex.test(trimmedLine)) {
           return false;
@@ -461,7 +459,7 @@ export default {
         message.success(`导入依赖任务提交成功`);
         const taskId = response.data;
         const onProgress = (status, data) => {
-          console.log(`当前任务状态: ${status}`);
+          console.log(`当前任务状态: ${status},${data}`);
 
         };
 
@@ -478,7 +476,7 @@ export default {
       } catch (error) {
         console.error('处理任务时发生错误:', error);
       }
-        await installedPackages()
+      await installedPackages()
 
 
     };
@@ -506,7 +504,6 @@ export default {
       handleDrop,
       handleRequirementsOk,
       beforeUpload,
-      handleChange,
       fileList,
       isRequirementsModalVisible,
       searchInput,
@@ -523,7 +520,6 @@ export default {
       virtualEnvPath,
       dataSource,
       columns,
-
     }
   }
 };

@@ -11,11 +11,13 @@
 </template>
 
 <script>
-import { useRoute } from 'vue-router';
+
 import Login from "@/components/Login.vue";
+import {useRoute} from "vue-router";
 
 export default {
   components: {
+    // eslint-disable-next-line vue/no-unused-components
     Login,
   },
   setup() {
