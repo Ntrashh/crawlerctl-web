@@ -2,7 +2,7 @@
   <a-layout style="min-height: 100vh">
     <a-layout-sider>
       <div class="logo">
-        <h1>CrawlerCtl</h1>
+        <h1>CrawlerCTL</h1>
       </div>
       <a-menu theme="dark" mode="inline"
               :selectedKeys="[activeMenu]"
@@ -31,8 +31,8 @@
           <router-view></router-view>
         </div>
       </a-layout-content>
-      <a-layout-footer style="text-align: center">
-        CrawlerCtl
+      <a-layout-footer style="text-align: center;">
+        ©2024 Created by NTrash
       </a-layout-footer>
     </a-layout>
   </a-layout>

@@ -1,33 +1,30 @@
 <template>
-
-  <div class="layout-wrapper">
-    <a-tabs type="card">
-      <a-tab-pane tab="编辑代码">
-
-        <a-layout class="custom-layout" style="height: 100vh;padding: 0px">
+    <a-tabs type="card" class="full-height-tabs">
+      <a-tab-pane tab="编辑代码" >
+        <a-layout class="custom-layout" style="min-height: 75vh">
           <!-- 侧边栏 -->
-          <a-layout-sider width="300px" theme="light">
+          <a-layout-sider  width="300px" theme="light">
             <!-- 左侧：文件树 -->
             <a-directory-tree
                 v-model:expandedKeys="expandedKeys"
                 v-model:selectedKeys="selectedKeys"
+                style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis"
+                height="100%"
                 @select="onSelect"
                 :tree-data="treeData"
-                style="height: 100%; overflow-y: auto; padding: 30px"
+                class="directory-tree"
             ></a-directory-tree>
-            <!-- 右侧：代码编辑器 -->
           </a-layout-sider>
-          <a-layout-content style="padding: 0px;">
-            <div id="editor" style="height: 100%; width: 100%"></div>
-            <!--      <div id="editor" style="height: calc(100vh - 100px); border: 1px solid #ddd;"></div>-->
+
+          <!-- 右侧：代码编辑器 -->
+          <a-layout-content class="content">
+            <div id="editor" class="editor"></div>
           </a-layout-content>
         </a-layout>
-
       </a-tab-pane>
+      <!-- 可以添加更多 Tab Pane -->
     </a-tabs>
-  </div>
 </template>
-
 <script>
 import {onMounted, toRaw} from "vue";
 import * as monaco from 'monaco-editor';
@@ -188,8 +185,12 @@ export default {
 }
 
 
-.custom-content {
-  padding: 24px;
+.tree-node-text {
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden; /* 隐藏溢出部分 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  display: block;
+  width: 100%;
 }
 
 </style>

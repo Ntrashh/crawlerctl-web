@@ -1,6 +1,5 @@
 <template>
   <a-layout class="login-container">
-    <a-card class="full-width-form">
       <div class="project-name">
         <h1>Crawlerctl</h1>
       </div>
@@ -34,7 +33,6 @@
           <a-button type="primary" @click="handleLogin" :loading="isSubmitting" block>登录</a-button>
         </a-form-item>
       </a-form>
-    </a-card>
   </a-layout>
 </template>
 
