@@ -39,7 +39,7 @@
 import {computed, h, onMounted, ref, watch} from 'vue';
 import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
 import {axiosGet, axiosPost} from "@/util/fetch.js";
-import {Button, message, Modal} from "ant-design-vue";
+import {Button, message} from "ant-design-vue";
 import router from "@/router/index.js";
 
 
@@ -149,7 +149,7 @@ export default {
         const nameStr = name.value;
         const versionStr = value.value;
         confirmLoading.value = true;
-        const response = await axiosPost("/envs/create_virtualenv", {
+        await axiosPost("/envs/create_virtualenv", {
           "version": versionStr,
           "env_name": nameStr
         }, {
@@ -181,7 +181,7 @@ export default {
           return
         }
 
-        const response = await axiosPost("/envs/delete_virtualenv", {
+        await axiosPost("/envs/delete_virtualenv", {
           "env_name": record.envName
         })
         message.success(`删除虚拟环境 ${record.envName} 版本:${record.version} 成功`, 3);

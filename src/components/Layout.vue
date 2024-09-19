@@ -44,6 +44,7 @@ import {ref, watch} from 'vue';
 import * as Icons from '@ant-design/icons-vue';
 
 export default {
+  "name":"CrawlerCtlLayout",
   setup() {
     const router = useRouter();
     const route = useRoute();
@@ -60,7 +61,7 @@ export default {
     };
 
     const getIconComponent = (iconName) =>{
-        return Icons[iconName];
+      return Icons[iconName];
     };
 
     // 监听路由变化，更新面包屑

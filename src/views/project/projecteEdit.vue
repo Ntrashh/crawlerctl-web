@@ -1,69 +1,59 @@
+
 <template>
-  <div style="display: flex; height: 100vh;">
+  <a-layout style="height: 100vh">
+    <!-- 侧边栏 -->
+    <a-layout-sider width="250px" theme="light">
     <!-- 左侧：文件树 -->
-    <div style="width: 300px; border-right: 1px solid #ddd; overflow: auto;">
-      <div style="padding: 16px;">
-        <a-input
-            v-model:value="folderPath"
-            placeholder="请输入文件夹路径"
-            style="width: 200px; margin-right: 8px;"
-        />
-        <a-button type="primary" @click="getFolderContents">打开文件夹</a-button>
-      </div>
-      <a-tree
-          :tree-data="treeData"
-          :defaultExpandAll="true"
+      <a-directory-tree
+          v-model:expandedKeys="expandedKeys"
+          v-model:selectedKeys="selectedKeys"
           @select="onSelect"
-      />
-    </div>
-
+          :tree-data="treeData"
+          style="height: 100%; overflow-y: auto;"
+      ></a-directory-tree>
     <!-- 右侧：代码编辑器 -->
-    <div style="flex: 1; padding: 16px;">
+    </a-layout-sider>
+  <a-layout-content style="padding: 24px;">
+    <div id="editor" style="height: 100%; width: 100%"></div>
+<!--      <div id="editor" style="height: calc(100vh - 100px); border: 1px solid #ddd;"></div>-->
+  </a-layout-content>
+  </a-layout>
 
-        <a-button type="primary" @click="saveFile" style="margin-bottom: 8px;">保存文件</a-button>
-        <div id="editor" style="height: calc(100vh - 100px); border: 1px solid #ddd;"></div>
-    </div>
-  </div>
 </template>
 
 <script>
+import {onMounted, toRaw} from "vue";
 import * as monaco from 'monaco-editor';
-import { ref, onMounted } from 'vue';
-import {axiosGet} from "@/util/fetch.js";
+import { ref } from 'vue';
+import { axiosGet} from "@/util/fetch.js";
+import axios from "axios";
+import {useRoute} from "vue-router";
 
 
-// 手动设置 Web Worker 的加载路径
-window.MonacoEnvironment = {
-  getWorkerUrl: function (moduleId, label) {
-    if (label === 'json') {
-      return '/monaco/json.worker.js';
-    }
-    if (label === 'css') {
-      return '/monaco/css.worker.js';
-    }
-    if (label === 'html') {
-      return '/monaco/html.worker.js';
-    }
-    if (label === 'typescript' || label === 'javascript') {
-      return '/monaco/ts.worker.js';
-    }
-    return '/monaco/editor.worker.js';
-  }
-};
+
 
 export default {
-  name: 'ProjectEdit',
+  name: 'projectEdit',
+
   setup() {
     // 定义响应式变量
+    const route = useRoute();
     const folderPath = ref('');  // 文件夹路径
+    const selectedKeys = ref([]);
+    const expandedKeys = ref([]);
     const treeData = ref([]);  // 文件树数据
     const selectedFilePath = ref('');  // 选中的文件路径
     const editor = ref(null);  // Monaco Editor 实例
     const codeContent = ref('');  // 代码内容
 
+
+
+    const getProjectInfo = async (id) => {
+      const response = await axiosGet(`/projects/${id}`);
+      folderPath.value = response.data.SavePath
+    }
     // 获取文件夹内容
     const getFolderContents = async () => {
-      console.log(folderPath.value);
       if (!folderPath.value) {
         return;
       }
@@ -74,7 +64,6 @@ export default {
         treeData.value = response.data;
       } catch (error) {
         console.error('获取文件列表失败:', error);
-        window.$message.error('获取文件列表失败');
       }
     };
 
@@ -85,7 +74,6 @@ export default {
         openFile();
       }
     };
-
     // 打开文件
 
     const openFile = async () => {
@@ -94,7 +82,6 @@ export default {
           filePath: selectedFilePath.value,
         });
         codeContent.value = response.data;
-        console.log(editor.value)
         // 检查编辑器实例是否已经初始化
         if (!editor.value) {
           editor.value = monaco.editor.create(document.getElementById('editor'), {
@@ -102,10 +89,16 @@ export default {
             language: getLanguageByExtension(selectedFilePath.value),
             theme: 'vs-dark',
           });
+          editor.value.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, function() {
+            // 自定义保存逻辑
+            saveFile();
+          });
+
+
         } else {
-          editor.value.setValue(codeContent.value);
+          toRaw(editor.value).setValue(codeContent.value);
           monaco.editor.setModelLanguage(
-              editor.value.getModel(),
+              toRaw(editor.value).getModel(),
               getLanguageByExtension(selectedFilePath.value)
           );
         }
@@ -115,7 +108,7 @@ export default {
     };
     // 保存文件
     const saveFile = async () => {
-      const newContent = editor.value.getValue();
+      const newContent = toRaw(editor.value).getValue();
       try {
         await axios.post('/api/save_file', {
           filePath: selectedFilePath.value,
@@ -144,13 +137,21 @@ export default {
       return languageMap[extension] || 'plaintext';
     };
 
+    onMounted(async () => {
+      await getProjectInfo(route.query.id)
+      await getFolderContents()
+    })
     // 返回 setup 中定义的响应式变量和方法
     return {
-      folderPath,
       treeData,
+      folderPath,
+      expandedKeys,
+      selectedKeys,
       selectedFilePath,
-      getFolderContents,
+      openFile,
       onSelect,
+      getProjectInfo,
+      getFolderContents,
       saveFile,
     };
   },
@@ -158,5 +159,8 @@ export default {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
+#editor {
+  height: 100%;
+  width: 100%;
+}
 </style>

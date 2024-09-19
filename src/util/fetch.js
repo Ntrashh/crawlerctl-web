@@ -54,7 +54,7 @@ instance.interceptors.response.use(response => {
                 break;
             case 500:
                 console.error('服务器错误');
-                message.error('服务器错误').then(r => {});
+                message.error('服务器错误').then(() => {});
                 break;
             default:
                 message.error(error.response.data.message);

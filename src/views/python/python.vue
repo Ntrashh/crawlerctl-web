@@ -40,9 +40,9 @@ import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {Button, message, Modal} from "ant-design-vue";
 
 export default {
-  name: "Python",
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: "python",
   setup() {
-    const activeKey = ref('pyenv');
     const dataSource = ref([]);
     const isModalVisible = ref(false);
     const options = ref([]);

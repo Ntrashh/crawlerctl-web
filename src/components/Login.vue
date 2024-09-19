@@ -90,14 +90,17 @@
 
 
 <script>
-import axios from 'axios';
 import {LockOutlined, UserOutlined} from "@ant-design/icons-vue";
 import {message} from 'ant-design-vue';
 import {axiosPost} from "@/util/fetch.js";
 
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: "login",
   components: {
+    // eslint-disable-next-line vue/no-unused-components
     UserOutlined,
+    // eslint-disable-next-line vue/no-unused-components
     LockOutlined,
   },
   data() {
