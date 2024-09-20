@@ -23,6 +23,9 @@
         </a-layout>
       </a-tab-pane>
       <!-- 可以添加更多 Tab Pane -->
+      <template #rightExtra>
+        <a-button  type="primary" @click="handleAddProject">GIT PULL</a-button>
+      </template>
     </a-tabs>
 </template>
 <script>
