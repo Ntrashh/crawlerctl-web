@@ -1,7 +1,5 @@
 <template>
-    <a-tabs type="card" class="full-height-tabs">
-      <a-tab-pane tab="编辑代码" >
-        <a-layout class="custom-layout" style="min-height: 75vh">
+        <a-layout class="custom-layout"  style="min-height: 100%" >
           <!-- 侧边栏 -->
           <a-layout-sider  width="300px" theme="light">
             <!-- 左侧：文件树 -->
@@ -21,12 +19,7 @@
             <div id="editor" class="editor"></div>
           </a-layout-content>
         </a-layout>
-      </a-tab-pane>
-      <!-- 可以添加更多 Tab Pane -->
-      <template #rightExtra>
-        <a-button  type="primary" @click="handleAddProject">GIT PULL</a-button>
-      </template>
-    </a-tabs>
+
 </template>
 <script>
 import {onMounted, toRaw} from "vue";
@@ -51,7 +44,6 @@ export default {
     const selectedFilePath = ref('');  // 选中的文件路径
     const editor = ref(null);  // Monaco Editor 实例
     const codeContent = ref('');  // 代码内容
-
 
     const getProjectInfo = async (id) => {
       const response = await axiosGet(`/projects/${id}`);
@@ -163,6 +155,7 @@ export default {
       getProjectInfo,
       getFolderContents,
       saveFile,
+
     };
   },
 };
@@ -177,14 +170,6 @@ export default {
   //border: 1px solid #d9d9d9; /* 可选：添加边框以增强视觉效果 */
   //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
   //background: #fff; /* 设置背景色，确保圆角可见 */
-}
-
-.custom-layout {
-  border-radius: 15px; /* 设置圆角半径 */
-  overflow: hidden; /* 确保子元素不溢出圆角区域 */
-  border: 1px solid #d9d9d9; /* 可选：添加边框以增强视觉效果 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
-  background: #fff; /* 设置背景色，确保圆角可见 */
 }
 
 

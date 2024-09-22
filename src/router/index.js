@@ -9,6 +9,7 @@ import Virtualenv from "@/views/virtualenv/virtualenv.vue";
 import VirtualenvList from "@/views/virtualenv/virtualenvList.vue";
 import Login from "@/components/Login.vue";
 import VirtualenvManager from "@/views/virtualenv/virtualenvManager.vue";
+import projectGit from "@/views/project/projectGit.vue";
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
@@ -54,6 +55,15 @@ const router = createRouter({
                                 requiresAuth: true,
                                 title: '编辑项目',
                                 breadcrumb:  ['主页', '项目管理','编辑项目'],
+                            },
+                        },
+                        {
+                            path: 'git', // 注意，这里不要以斜杠开头
+                            component: projectGit,
+                            meta: {
+                                requiresAuth: true,
+                                title: 'GIT管理',
+                                breadcrumb:  ['主页', '项目管理','GIT管理'],
                             },
                         },
                     ]

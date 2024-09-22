@@ -63,7 +63,7 @@ import {h, onMounted, ref, watch} from "vue";
 import {Button, message} from "ant-design-vue";
 import JSZip from 'jszip';
 import {axiosDel, axiosGet, axiosPost} from "@/util/fetch.js";
-import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
+import {CloudUploadOutlined, DeleteOutlined, GithubOutlined, SettingOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 
 
@@ -143,6 +143,24 @@ export default {
                 Button,
                 {
                   type: 'link',
+                  icon: h(GithubOutlined),
+                  onClick: () => gitProject(record),
+                },
+                () => 'GIT管理'
+            ),
+            h(
+                Button,
+                {
+                  type: 'link',
+                  icon: h(CloudUploadOutlined),
+                  onClick: () => reUpdateProject(record),
+                },
+                () => '重新上传'
+            ),
+            h(
+                Button,
+                {
+                  type: 'link',
                   danger: true,
                   icon: h(DeleteOutlined),
                   onClick: () => deleteProject(record),
@@ -170,6 +188,14 @@ export default {
 
     async function editProject(record) {
       await router.push({path: "/project/edit", query: {id: record.ID}}); // 跳转到对应的路由
+    }
+
+    async function gitProject(record) {
+      await router.push({path: "/project/git", query: {id: record.ID}});
+    }
+    async function reUpdateProject(record) {
+      // await router.push({path: "/project/upload", query: {id: record.ID}});
+      console.log(record);
     }
 
     async function deleteProject(record) {
