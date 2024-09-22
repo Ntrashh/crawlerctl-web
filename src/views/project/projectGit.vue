@@ -24,8 +24,23 @@
             <a-button type="primary">PULL</a-button>
           </a-space-compact>
         </a-form-item>
-        <a-timeline mode="alternate" style="padding: 50px">
-          <a-timeline-item>Create a services site 2015-09-01</a-timeline-item>
+        <a-timeline style="padding: 50px">
+          <a-timeline-item
+              v-for="commit in commits"
+              :key="commit.hash"
+              :dot="getDot(commit)"
+              :color="getColor(commit)"
+          >
+            <div>
+              <br/>
+              <strong>author:</strong>{{ commit.author }}
+            </div>
+            <div> <strong>message:</strong>{{ commit.message }}</div>
+            <div><strong>hash:</strong><code>{{ commit.hash }}</code></div>
+          </a-timeline-item>
+          <a-timeline-item v-if="commits.length > 0">
+            ......
+          </a-timeline-item>
         </a-timeline>
       </a-form>
     </div>
@@ -82,7 +97,7 @@
 </template>
 <script>
 
-import {onMounted, ref} from "vue";
+import {onMounted,watch, ref} from "vue";
 import {axiosGet, axiosPost} from "@/util/fetch";
 import {useRoute} from "vue-router";
 
@@ -91,15 +106,18 @@ export default {
     const route = useRoute();
     const gitLoginVisible = ref(false);
     const gitPath = ref("")
+    const gitStatus = ref(false)
     const branch = ref(undefined);
     const branchOptions = ref([]);
+    const commits = ref([])
     const formState = ref({
       gitPath: '',
       username: '',
       password: '',
     });
     const handleBranchChange = async (value) => {
-      console.log(value)
+      await breachCommits(value)
+
     }
     const onFinish = async (values) => {
       try {
@@ -112,6 +130,7 @@ export default {
         if (response.data.ID) {
           gitLoginVisible.value = false;
           gitPath.value = response.data.GitPath;
+          gitStatus.value = true;
         }
 
       } catch (err) {
@@ -121,7 +140,32 @@ export default {
     const onFinishFailed = errorInfo => {
       console.log('Failed:', errorInfo);
     };
+    // 计算属性：过滤掉 'origin/' 前缀
 
+
+    const breachCommits = async (breachName) => {
+      try {
+        let response = await axiosGet(`/git/remote_commits`, {
+          "id": route.query.id,
+          "branch_name": breachName,
+        })
+        commits.value = response.data;
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    const showBranch = async () => {
+      try {
+        let response = await axiosGet(`/git/remote_branches/${route.query.id}`)
+        branchOptions.value = response.data.map(item => ({
+          label: item.replace(/^origin\//, ''),
+          value: item.replace(/^origin\//, ''),
+        }));
+      }catch (err){
+        console.log(err)
+      }
+    }
 
     const gitState = async (id) => {
       try {
@@ -131,11 +175,7 @@ export default {
 
         } else {
           gitPath.value = response.data.GitPath
-          response = await axiosGet(`/git/remote_branches/${id}`)
-          branchOptions.value = response.data.map(item => ({
-            label: item,
-            value: item,
-          }));
+          gitStatus.value = true
 
         }
       } catch (err) {
@@ -143,6 +183,21 @@ export default {
       }
 
     }
+    const getDot = (commit)=> {
+      return commit.commitTime
+      // 可根据提交信息定制时间点的图标或样式
+      // return <a-icon type="clock-circle" />;
+    }
+    const getColor = () => {
+      // 可根据提交信息定制时间点的颜色
+      return 'blue';
+    }
+    // 监听 gitLoginVisible 的变化
+    watch(gitStatus, async (newVal) => {
+      if (newVal) {
+        await showBranch()
+      }
+    });
     onMounted(async () => {
       await gitState(route.query.id)
     })
@@ -151,7 +206,10 @@ export default {
       formState,
       gitPath,
       branch,
+      commits,
       branchOptions,
+      getDot,
+      getColor,
       onFinish,
       handleBranchChange,
       onFinishFailed,
