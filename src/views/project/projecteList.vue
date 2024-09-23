@@ -55,8 +55,29 @@
       </a-form>
     </a-modal>
   </div>
-
+  <a-modal v-model:open="reUploadProjectIsModalVisible" title="重新上传" centered @ok="handleReUploadProjectOk"
+           :confirm-loading="reUploadConfirmLoading"
+           @cancel="handleReUploadProjectCancel">
+    <a-upload-dragger
+        v-model:fileList="fileList"
+        name="file"
+        accept=".zip"
+        :max-count="1"
+        :before-upload="beforeUpload"
+        @change="handleUploadChange"
+        @drop="handleUploadDrop"
+        style="width: 100%;"
+    >
+      <p class="ant-upload-drag-icon">
+      </p>
+      <p class="ant-upload-text">上传压缩后的zip文件</p>
+      <p class="ant-upload-hint">
+        只能上传zip文件,其他文件禁止上传！
+      </p>
+    </a-upload-dragger>
+  </a-modal>
 </template>
+
 
 <script>
 import {h, onMounted, ref, watch} from "vue";
@@ -76,9 +97,12 @@ export default {
     const confirmLoading = ref(false);
     const dataSource = ref([])
     const createProjectIsModalVisible = ref(false);
+    const reUploadProjectIsModalVisible = ref(false);
+    const reUploadConfirmLoading = ref(false);
     const virtualenvValue = ref(undefined);
     const virtualenvOptions = ref([]);
     const projectName = ref("");
+    const reloadProjectPath = ref("");
     let virtualenvPath = ref("");
     let virtualenvVersion = ref("");
 
@@ -113,14 +137,6 @@ export default {
         title: '创建时间',
         dataIndex: 'CreatedAt',
         key: 'CreatedAt',
-        customRender: ({text}) => {
-          return text ? new Date(text).toLocaleString() : '';
-        },
-      },
-      {
-        title: '更新时间',
-        dataIndex: 'UpdatedAt',
-        key: 'UpdatedAt',
         customRender: ({text}) => {
           return text ? new Date(text).toLocaleString() : '';
         },
@@ -193,9 +209,10 @@ export default {
     async function gitProject(record) {
       await router.push({path: "/project/git", query: {id: record.ID}});
     }
+
     async function reUpdateProject(record) {
-      // await router.push({path: "/project/upload", query: {id: record.ID}});
-      console.log(record);
+      reUploadProjectIsModalVisible.value = true;
+      reloadProjectPath.value = record.SavePath
     }
 
     async function deleteProject(record) {
@@ -203,7 +220,7 @@ export default {
         await axiosDel(`/projects/${record.ID}`);
         message.success('项目已成功删除');
         dataSource.value = dataSource.value.filter(item => item.ID !== record.ID);
-      }catch(error) {
+      } catch (error) {
         console.log(error)
       }
     }
@@ -302,6 +319,34 @@ export default {
     const handleUploadDrop = (e) => {
       console.log(e);
     }
+
+    const handleReUploadProjectOk = async () => {
+      const file = fileList.value[0].originFileObj;
+      const formData = new FormData();
+      formData.append('save_path', reloadProjectPath.value);
+      formData.append('file', file);
+      try {
+        reUploadConfirmLoading.value = true
+        await axiosPost('/projects/reload_file', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 300000
+        });
+        message.success('文件上传成功');
+        await fetchData()
+      } catch (error) {
+        console.error('文件上传失败：', error);
+
+      } finally {
+        reUploadProjectIsModalVisible.value = false;
+      }
+    }
+
+    const handleReUploadProjectCancel = () => {
+      reUploadProjectIsModalVisible.value = false;
+    }
+
     watch(createProjectIsModalVisible, async (newVal) => {
       if (newVal) {
         const response = await axiosGet('/envs/get_versions', {
@@ -330,8 +375,12 @@ export default {
       virtualenvOptions,
       confirmLoading,
       projectName,
+      reUploadProjectIsModalVisible,
+      reUploadConfirmLoading,
       focus,
       handleChange,
+      handleReUploadProjectCancel,
+      handleReUploadProjectOk,
       handleUploadChange,
       handleUploadDrop,
       beforeUpload,
