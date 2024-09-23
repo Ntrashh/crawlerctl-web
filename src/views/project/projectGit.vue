@@ -21,11 +21,13 @@
                 :options="branchOptions"
                 @change="handleBranchChange"
             ></a-select>
-            <a-button type="primary">PULL</a-button>
+            <a-button @click="pullHandler" type="primary">PULL</a-button>
           </a-space-compact>
         </a-form-item>
-        <a-timeline style="padding: 50px">
+        <div class="timeline-container">
+        <a-timeline  style="padding: 50px" >
           <a-timeline-item
+
               v-for="commit in commits"
               :key="commit.hash"
               :dot="getDot(commit)"
@@ -35,13 +37,14 @@
               <br/>
               <strong>author:</strong>{{ commit.author }}
             </div>
-            <div> <strong>message:</strong>{{ commit.message }}</div>
-            <div><strong>hash:</strong><code>{{ commit.hash }}</code></div>
+            <div> <strong>message:</strong><p style="white-space: pre-line">{{ commit.message }}</p></div>
+            <div><strong>hash:</strong><code >{{ commit.hash }}</code></div>
           </a-timeline-item>
           <a-timeline-item v-if="commits.length > 0">
             ......
           </a-timeline-item>
         </a-timeline>
+        </div>
       </a-form>
     </div>
   </div>
@@ -100,6 +103,7 @@
 import {onMounted,watch, ref} from "vue";
 import {axiosGet, axiosPost} from "@/util/fetch";
 import {useRoute} from "vue-router";
+import {message} from "ant-design-vue";
 
 export default {
   setup() {
@@ -192,6 +196,23 @@ export default {
       // 可根据提交信息定制时间点的颜色
       return 'blue';
     }
+
+    const pullHandler =async () => {
+     try {
+       let response = await axiosPost(`/git/breach_pull`, {
+         "project_id": parseInt(route.query.id),
+         "branch_name": branch.value,
+       })
+       if (response.data === null) {
+         message.error("拉取失败")
+       }else{
+         message.success("拉取成功")
+       }
+     }catch (err){
+       console.log(err)
+     }
+    }
+
     // 监听 gitLoginVisible 的变化
     watch(gitStatus, async (newVal) => {
       if (newVal) {
@@ -211,6 +232,7 @@ export default {
       getDot,
       getColor,
       onFinish,
+      pullHandler,
       handleBranchChange,
       onFinishFailed,
     }
@@ -224,6 +246,11 @@ export default {
   display: flex;
   justify-content: center; /* 水平居中内容 */
   align-items: center; /* 垂直居中内容 */
+}
+
+.timeline-container {
+  display: flex;
+  justify-content: center; /* 水平居中内容 */
 }
 
 .git {
