@@ -7,7 +7,6 @@
                 v-model:expandedKeys="expandedKeys"
                 v-model:selectedKeys="selectedKeys"
                 style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis"
-                height="100%"
                 @select="onSelect"
                 :tree-data="treeData"
                 class="directory-tree"
@@ -173,12 +172,6 @@ export default {
 }
 
 
-.tree-node-text {
-  white-space: nowrap; /* 不换行 */
-  overflow: hidden; /* 隐藏溢出部分 */
-  text-overflow: ellipsis; /* 显示省略号 */
-  display: block;
-  width: 100%;
-}
+
 
 </style>

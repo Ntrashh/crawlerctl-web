@@ -10,6 +10,8 @@ import VirtualenvList from "@/views/virtualenv/virtualenvList.vue";
 import Login from "@/components/Login.vue";
 import VirtualenvManager from "@/views/virtualenv/virtualenvManager.vue";
 import projectGit from "@/views/project/projectGit.vue";
+import program from "@/views/program/program.vue";
+import programList from "@/views/program/programList.vue";
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
@@ -64,6 +66,27 @@ const router = createRouter({
                                 requiresAuth: true,
                                 title: 'GIT管理',
                                 breadcrumb:  ['主页', '项目管理','GIT管理'],
+                            },
+                        },
+                    ]
+                },
+                {
+                    path: '/program',
+                    component: program,
+                    meta: {
+                        requiresAuth: true,
+                        title: '程序管理',
+                        icon: 'FundProjectionScreenOutlined',
+                        breadcrumb: ['主页', '程序管理'],
+                    },
+                    children:[
+                        {
+                            path: '', // 注意，这里不要以斜杠开头
+                            component: programList,
+                            meta: {
+                                requiresAuth: true,
+                                title: '程序管理',
+                                breadcrumb:  ['主页', '程序管理'],
                             },
                         },
                     ]
