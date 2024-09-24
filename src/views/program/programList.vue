@@ -24,13 +24,12 @@
               ref="select"
               v-model:value="projectValue"
               placeholder="选择项目"
-              @focus="focus"
               :options="projectOptions"
           >
           </a-select>
-          <a-form-item label="执行文件">
-            <a-input v-model:value="programName" placeholder="请输入程序名称(程序名创建后不能修改)"/>
-          </a-form-item>
+        </a-form-item>
+        <a-form-item label="启动命令">
+          <a-input v-model:value="Script" placeholder="启动命令相对于根目录执行"/>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -45,7 +44,7 @@ export default {
     const programDataSource = ref([])
     const programName = ref("")
     const projectValue = ref(undefined)
-    const  projectOptions = ref([])
+    const projectOptions = ref([])
     const createProgramIsModalVisible = ref(false);
     const createProgramConfirmLoading = ref(false);
     const programColumns = [];
