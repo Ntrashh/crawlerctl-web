@@ -29,7 +29,7 @@
           </a-select>
         </a-form-item>
         <a-form-item label="启动命令">
-          <a-input v-model:value="Script" placeholder="启动命令相对于根目录执行"/>
+          <a-input v-model:value="script" placeholder="启动命令相对于根目录执行"/>
         </a-form-item>
       </a-form>
     </a-modal>
