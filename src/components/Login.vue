@@ -90,7 +90,7 @@
 <script>
 import {LockOutlined, UserOutlined} from "@ant-design/icons-vue";
 import {message} from 'ant-design-vue';
-import {axiosPost} from "@/util/fetch.js";
+import http from "@/util/http";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -117,7 +117,7 @@ export default {
 
       try {
         // 发送登录请求
-        const response = await axiosPost('/login', {
+        const response = await http.post('/login', {
           username: this.loginForm.username,
           password: this.loginForm.password
         });

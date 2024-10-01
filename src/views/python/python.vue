@@ -36,8 +36,8 @@
 <script>
 import {computed, h, onMounted, ref, watch} from 'vue';
 import {CheckOutlined, CloseOutlined, DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
-import {axiosGet, axiosPost} from "@/util/fetch.js";
 import {Button, message, Modal} from "ant-design-vue";
+import http from "@/util/http";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -113,7 +113,7 @@ export default {
     // 获取 Python 环境数据
     const fetchPythonData = async () => {
       try {
-        const response = await axiosGet(`/envs/get_versions?type=pyenv`);
+        const response = await http.get(`/envs/get_versions?type=pyenv`);
         dataSource.value = response.data;
       } catch (error) {
         console.error('获取 Python 环境数据失败:', error);
@@ -123,7 +123,7 @@ export default {
     // 获取远程版本数据
     const fetchRemoteVersions = async () => {
       try {
-        const response = await axiosGet('/envs/remote_versions');
+        const response = await http.get('/envs/remote_versions');
         options.value = response.data.map(item => ({
           label: item,
           value: item,
@@ -148,7 +148,7 @@ export default {
     // 安装 Python 版本
     const pythonInstall = async () => {
       try {
-        const response = await axiosPost("/envs/install", {version: value.value});
+        const response = await http.post("/envs/install", {version: value.value});
         const taskId = response.data;
         message.success(`Python ${value.value}安装任务提交成功: ${taskId}`);
         isModalVisible.value = false;
@@ -161,7 +161,7 @@ export default {
     // 轮询任务状态
     const pollTaskStatus = async (taskId) => {
       try {
-        const statusResponse = await axiosGet(`/tasks/task_status?task_id=${taskId}`);
+        const statusResponse = await http.get(`/tasks/task_status?task_id=${taskId}`);
         const statusData = statusResponse.data;
         taskStatus.value = statusData.status;
 
@@ -211,7 +211,7 @@ export default {
     // 设置全局版本
     const handleSetGlobal = async (record) => {
       try {
-        await axiosPost("/envs/set_global", {version: record.version});
+        await http.post("/envs/set_global", {version: record.version});
         message.success(`设置版本 ${record.version} 为全局版本成功`);
         await fetchPythonData();
       } catch (error) {
@@ -223,14 +223,14 @@ export default {
     const handleDelete = async (record) => {
       try {
         loadingStates.value = {...loadingStates.value, [record.version]: true};
-        let version = await axiosGet("/projects/projects_by_version", {
+        let version = await http.get("/projects/projects_by_version", {
           "version": record.version,
         })
         if (version.data) {
           message.error("当前Python版本正被项目依赖，无法删除!")
           return
         }
-        await axiosPost("/envs/delete_python", {version: record.version});
+        await http.post("/envs/delete_python", {version: record.version});
         message.success(`删除 Python 版本 ${record.version} 成功`);
         await fetchPythonData();
       } catch (error) {

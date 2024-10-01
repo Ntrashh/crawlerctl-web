@@ -100,8 +100,8 @@
 </template>
 <script>
 
+import http from "@/util/http";
 import {onMounted,watch, ref} from "vue";
-import {axiosGet, axiosPost} from "@/util/fetch";
 import {useRoute} from "vue-router";
 import {message} from "ant-design-vue";
 
@@ -125,7 +125,7 @@ export default {
     }
     const onFinish = async (values) => {
       try {
-        const response = await axiosPost("/git/create_git", {
+        const response = await http.post("/git/create_git", {
           "project_id": parseInt(route.query.id),
           "git_path": values.gitPath,
           "username": values.username,
@@ -149,7 +149,7 @@ export default {
 
     const breachCommits = async (breachName) => {
       try {
-        let response = await axiosGet(`/git/remote_commits`, {
+        let response = await http.get(`/git/remote_commits`, {
           "id": route.query.id,
           "branch_name": breachName,
         })
@@ -161,7 +161,7 @@ export default {
 
     const showBranch = async () => {
       try {
-        let response = await axiosGet(`/git/remote_branches/${route.query.id}`)
+        let response = await http.get(`/git/remote_branches/${route.query.id}`)
         branchOptions.value = response.data.map(item => ({
           label: item.replace(/^origin\//, ''),
           value: item.replace(/^origin\//, ''),
@@ -173,7 +173,7 @@ export default {
 
     const gitState = async (id) => {
       try {
-        let response = await axiosGet(`/git/${id}`)
+        let response = await http.get(`/git/${id}`)
         if (response.data === null) {
           gitLoginVisible.value = true;
 
@@ -199,7 +199,7 @@ export default {
 
     const pullHandler =async () => {
      try {
-       let response = await axiosPost(`/git/breach_pull`, {
+       let response = await http.post(`/git/breach_pull`, {
          "project_id": parseInt(route.query.id),
          "branch_name": branch.value,
        })
@@ -257,10 +257,6 @@ export default {
   width: 70%;
   height: 100%; /* 根据需要调整高度 */
   padding: 40px;
-  //background-color: #141414;
   color: white; /* 文字颜色 */
-  //align-items: center;     /* 垂直居中内容 */
-  //font-size: 24px;         /* 文字大小 */
-  //border-radius: 8px;      /* 圆角（可选） */
 }
 </style>

@@ -152,13 +152,14 @@
 
 <script>
 
-import {axiosGet, axiosPost,pollTaskStatus} from "@/util/fetch.js";
+// import {http.get, http.post,http.pollTaskStatus} from "@/util/fetch.js";
 import {computed, h, onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
 import {Button, message} from "ant-design-vue";
 import {DeleteOutlined} from "@ant-design/icons-vue";
 import {SearchOutlined} from '@ant-design/icons-vue';
 import { InboxOutlined } from '@ant-design/icons-vue';
+import http from "@/util/http";
 
 export default {
   name:"VirtualenvManager",
@@ -257,13 +258,13 @@ export default {
     ];
     const selectedInstallationSource = ref(installationSources[0].value);
     const getVenvInfo = async (envName) => {
-      const response = await axiosGet("/envs/get_virtualenv", {"env_name": envName})
+      const response = await http.get("/envs/get_virtualenv", {"env_name": envName})
       virtualEnvName.value = response.data.envName;
       virtualEnvVersion.value = response.data.version;
       virtualEnvPath.value = response.data.path;
     };
     const installedPackages = async () => {
-      const response = await axiosPost("/envs/installed_packages", {
+      const response = await http.post("/envs/installed_packages", {
         "env_path": virtualEnvPath.value
       })
       dataSource.value = response.data;
@@ -272,7 +273,7 @@ export default {
     const uninstallPackages = async (record) => {
       try {
         loadingStates.value = {...loadingStates.value, [record.name]: true};
-        await axiosPost("/envs/uninstall_packages", {
+        await http.post("/envs/uninstall_packages", {
           "virtualenv_path": virtualEnvPath.value,
           "package_name": record.name
         })
@@ -328,7 +329,7 @@ export default {
         const url = "/envs/install_packages";
         console.log(selectedInstallationSource.value)
         confirmLoading.value = true;
-         await axiosPost(url, {
+         await http.post(url, {
           "package_name": packageName.value,
           "virtualenv_path": virtualEnvPath.value,
           "package_version": selectedVersion.value,
@@ -355,7 +356,7 @@ export default {
       }
       try {
         // 调用后端接口获取包的版本列表
-        const response = await axiosGet(`/envs/package_versions`, {
+        const response = await http.get(`/envs/package_versions`, {
           "package_name": paramsPackageName,
         });
         let responsePackageVersions = response.data;
@@ -449,7 +450,7 @@ export default {
 
 
       try {
-        const response = await axiosPost('/envs/install_requirements', formData, {
+        const response = await http.post('/envs/install_requirements', formData, {
 
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -464,7 +465,7 @@ export default {
         };
 
         // 开始轮询任务状态
-        const finalStatus = await pollTaskStatus(taskId, 4000, 10, onProgress);
+        const finalStatus = await http.pollTaskStatus(taskId, 4000, 10, onProgress);
 
         if (finalStatus === 'done') {
           message.success('依赖安装成功');

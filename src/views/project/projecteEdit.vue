@@ -1,33 +1,34 @@
 <template>
-        <a-layout class="custom-layout"  style="min-height: 100%" >
-          <!-- 侧边栏 -->
-          <a-layout-sider  width="300px" theme="light">
-            <!-- 左侧：文件树 -->
-            <a-directory-tree
-                v-model:expandedKeys="expandedKeys"
-                v-model:selectedKeys="selectedKeys"
-                style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis"
-                @select="onSelect"
-                :tree-data="treeData"
-                class="directory-tree"
-            ></a-directory-tree>
-          </a-layout-sider>
+  <a-layout class="custom-layout" style="min-height: 100%">
+    <!-- 侧边栏 -->
+    <a-layout-sider width="300px" theme="light">
+      <!-- 左侧：文件树 -->
+      <a-directory-tree
+          v-model:expandedKeys="expandedKeys"
+          v-model:selectedKeys="selectedKeys"
+          style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis"
+          @select="onSelect"
+          :tree-data="treeData"
+          class="directory-tree"
+      ></a-directory-tree>
+    </a-layout-sider>
 
-          <!-- 右侧：代码编辑器 -->
-          <a-layout-content class="content">
-            <div id="editor" class="editor"></div>
-          </a-layout-content>
-        </a-layout>
+    <!-- 右侧：代码编辑器 -->
+    <a-layout-content class="content">
+      <div id="editor" class="editor"></div>
+    </a-layout-content>
+  </a-layout>
 
 </template>
 <script>
 import {onMounted, toRaw} from "vue";
 import * as monaco from 'monaco-editor';
 import {ref} from 'vue';
-import {axiosGet, axiosPost} from "@/util/fetch.js";
+
 import {useRoute} from "vue-router";
 import {Base64} from "js-base64";
 import {message} from "ant-design-vue";
+import http from "@/util/http";
 
 
 export default {
@@ -45,7 +46,7 @@ export default {
     const codeContent = ref('');  // 代码内容
 
     const getProjectInfo = async (id) => {
-      const response = await axiosGet(`/projects/${id}`);
+      const response = await http.get(`/projects/${id}`);
       folderPath.value = response.data.SavePath
     }
     // 获取文件夹内容
@@ -55,7 +56,7 @@ export default {
         return;
       }
       try {
-        const response = await axiosGet('/projects/get_folders', {
+        const response = await http.get('/projects/get_folders', {
           folderPath: folderPath.value
         });
         treeData.value = response.data;
@@ -75,7 +76,7 @@ export default {
 
     const openFile = async () => {
       try {
-        const response = await axiosGet('/projects/read_file', {
+        const response = await http.get('/projects/read_file', {
           filePath: selectedFilePath.value,
         });
         codeContent.value = Base64.decode(response.data);
@@ -108,7 +109,7 @@ export default {
     const saveFile = async () => {
       const newContent = toRaw(editor.value).getValue();
       try {
-        let response = await axiosPost('/projects/save_file', {
+        let response = await http.post('/projects/save_file', {
           file_path: selectedFilePath.value,
           content: Base64.encode(newContent),
         });
@@ -164,14 +165,7 @@ export default {
 #editor {
   height: 100%;
   width: 100%;
-  //border-radius: 15px; /* 设置圆角半径 */
-  //overflow: hidden; /* 确保子元素不溢出圆角区域 */
-  //border: 1px solid #d9d9d9; /* 可选：添加边框以增强视觉效果 */
-  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 可选：添加阴影 */
-  //background: #fff; /* 设置背景色，确保圆角可见 */
 }
-
-
 
 
 </style>

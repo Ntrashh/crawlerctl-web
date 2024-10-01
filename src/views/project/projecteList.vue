@@ -80,13 +80,12 @@
 
 
 <script>
+import http from "@/util/http.js";
 import {h, onMounted, ref, watch} from "vue";
 import {Button, message} from "ant-design-vue";
 import JSZip from 'jszip';
-import {axiosDel, axiosGet, axiosPost} from "@/util/fetch.js";
 import {CloudUploadOutlined, DeleteOutlined, GithubOutlined, SettingOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-
 
 const fileList = ref([]);
 
@@ -191,7 +190,7 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = await axiosGet('/projects/projects');
+        const response = await http.get('/projects/projects');
         if (Array.isArray(response.data)) {
           dataSource.value = response.data;
         } else {
@@ -217,7 +216,7 @@ export default {
 
     async function deleteProject(record) {
       try {
-        await axiosDel(`/projects/${record.ID}`);
+        await http.del(`/projects/${record.ID}`);
         message.success('项目已成功删除');
         dataSource.value = dataSource.value.filter(item => item.ID !== record.ID);
       } catch (error) {
@@ -258,7 +257,7 @@ export default {
       formData.append('file', file);
       try {
         confirmLoading.value = true
-        await axiosPost('/projects/add_project', formData, {
+        await http.post('/projects/add_project', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -327,7 +326,7 @@ export default {
       formData.append('file', file);
       try {
         reUploadConfirmLoading.value = true
-        await axiosPost('/projects/reload_file', formData, {
+        await http.post('/projects/reload_file', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -349,7 +348,7 @@ export default {
 
     watch(createProjectIsModalVisible, async (newVal) => {
       if (newVal) {
-        const response = await axiosGet('/envs/get_versions', {
+        const response = await http.get('/envs/get_versions', {
           "type": "virtual"
         }); // 替换为实际接口
         // eslint-disable-next-line no-unused-vars

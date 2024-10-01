@@ -38,7 +38,8 @@
 <script>
 import {computed, h, onMounted, ref, watch} from 'vue';
 import {DeleteOutlined, SettingOutlined} from "@ant-design/icons-vue";
-import {axiosGet, axiosPost} from "@/util/fetch.js";
+// import {http.get, http.post} from "@/util/fetch.js";
+import http from "@/util/http";
 import {Button, message} from "ant-design-vue";
 import router from "@/router/index.js";
 
@@ -114,7 +115,7 @@ export default {
 
     const fetchVirtualenvData = async () => {
       try {
-        const response = await axiosGet(`/envs/get_versions?type=virtual`);
+        const response = await http.get(`/envs/get_versions?type=virtual`);
         dataSource.value = response.data;
       } catch (error) {
         console.error('获取虚拟环境数据失败:', error);
@@ -123,7 +124,7 @@ export default {
 
     watch(isModalVisible, async (newVal) => {
       if (newVal) {
-        const response = await axiosGet('/envs/get_versions', {
+        const response = await http.get('/envs/get_versions', {
           "type": "pyenv"
         }); // 替换为实际接口
         for (const item of response.data) {
@@ -149,7 +150,7 @@ export default {
         const nameStr = name.value;
         const versionStr = value.value;
         confirmLoading.value = true;
-        await axiosPost("/envs/create_virtualenv", {
+        await http.post("/envs/create_virtualenv", {
           "version": versionStr,
           "env_name": nameStr
         }, {
@@ -173,7 +174,7 @@ export default {
     const handleDelete = async (record) => {
       try {
         loadingStates.value = {...loadingStates.value, [record.version]: true};
-        let  version = await axiosGet("/projects/projects_by_version",{
+        let  version = await http.get("/projects/projects_by_version",{
           "version": record.version,
         })
         if(version.data){
@@ -181,7 +182,7 @@ export default {
           return
         }
 
-        await axiosPost("/envs/delete_virtualenv", {
+        await http.post("/envs/delete_virtualenv", {
           "env_name": record.envName
         })
         message.success(`删除虚拟环境 ${record.envName} 版本:${record.version} 成功`, 3);
