@@ -41,7 +41,7 @@
           </a-select>
         </a-form-item>
         <a-form-item label="启动命令">
-          <a-input v-model:value="script" placeholder="启动命令相对于根目录执行"/>
+          <a-input v-model:value="startCommand" placeholder="启动命令相对于根目录执行"/>
         </a-form-item>
       </a-form>
     </a-modal>
@@ -52,6 +52,7 @@
 import {ref, onMounted} from "vue";
 import {SearchOutlined} from '@ant-design/icons-vue';
 import http from "@/util/http";
+import {message} from "ant-design-vue";
 
 export default {
   setup() {
@@ -59,15 +60,26 @@ export default {
     const programName = ref("")
     const projectValue = ref(undefined)
     const projectOptions = ref([])
+    const startCommand = ref("")
     const createProgramIsModalVisible = ref(false);
     const createProgramConfirmLoading = ref(false);
     const programColumns = [];
 
     const handleCreateProgramOk = () => {
+      try {
 
+        let response = http.post('/programs/add_program', {
+          "program_name": programName.value,
+          "project_id": projectValue.value,
+          "start_command": startCommand.value,
+        })
+        message.info(response.data)
+      }catch(err) {
+        console.log(err)
+      }
     }
     const handleCreateProgramCancel = () => {
-
+      createProgramIsModalVisible.value = false;
     }
 
     const changeProject = () => {
@@ -77,17 +89,14 @@ export default {
       createProgramIsModalVisible.value = true;
     }
     onMounted(async () => {
-      let response = await http.get("/projects/projects")
-      projectOptions.value = response.data.map(item => ({
-        label: item.ProjectName, // 版本名
-        value: item.ID, // 版本ID
-      }))
+      let response = await http.get("/programs/programs")
       console.log(response.data)
       // await http.post("/envs/install_packages", {})
     })
     return {
       programName,
       projectValue,
+      startCommand,
       projectOptions,
       programColumns,
       programDataSource,
