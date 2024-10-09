@@ -32,11 +32,9 @@ instance.interceptors.response.use(response => {
         } else if (error.code === 'ECONNABORTED') {
             console.error('请求超时');
             message.error('请求超时');
-
         } else {
             console.error('未知的网络错误');
             message.error('未知的网络错误');
-
         }
     } else {
         // 处理HTTP状态码错误

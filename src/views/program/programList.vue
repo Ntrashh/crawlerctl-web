@@ -65,16 +65,18 @@ export default {
     const createProgramConfirmLoading = ref(false);
     const programColumns = [];
 
-    const handleCreateProgramOk = () => {
+    const handleCreateProgramOk = async () => {
       try {
-
-        let response = http.post('/programs/add_program', {
+        let response = await http.post('/programs/add_program', {
           "program_name": programName.value,
           "project_id": projectValue.value,
           "start_command": startCommand.value,
         })
-        message.info(response.data)
-      }catch(err) {
+        if (response.data) {
+          message.success(`程序${programName.value}创建成功`)
+        }
+
+      } catch (err) {
         console.log(err)
       }
     }
@@ -91,7 +93,12 @@ export default {
     onMounted(async () => {
       let response = await http.get("/programs/programs")
       console.log(response.data)
-      // await http.post("/envs/install_packages", {})
+      let projectResponse = await http.get('/projects/projects');
+      console.log(projectResponse);
+      projectOptions.value =  projectResponse.data.map(item => ({
+        label: item.ProjectName,
+        value: item.ID,
+      }));
     })
     return {
       programName,
