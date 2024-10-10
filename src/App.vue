@@ -1,34 +1,30 @@
 <template>
-  <div>
-    <!-- 如果当前页面不是登录页面，显示 Layout -->
-    <Layout v-if="!isLoginPage">
-      <router-view />
-    </Layout>
-
-    <!-- 如果是登录页面，直接渲染登录 -->
-    <router-view v-else />
-  </div>
+  <nav>
+    <router-link to="/">Home</router-link> |
+    <router-link to="/about">About</router-link>
+  </nav>
+  <router-view />
 </template>
 
-<script>
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
 
-import Login from "@/components/Login.vue";
-import {useRoute} from "vue-router";
+nav {
+  padding: 30px;
+}
 
-export default {
-  components: {
-    // eslint-disable-next-line vue/no-unused-components
-    Login,
-  },
-  setup() {
-    const route = useRoute();
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
 
-    // 判断当前路由是否是登录页面
-    const isLoginPage = route.path === '/login';
-
-    return {
-      isLoginPage,
-    };
-  }
-};
-</script>
+nav a.router-link-exact-active {
+  color: #42b983;
+}
+</style>
